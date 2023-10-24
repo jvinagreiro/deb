@@ -1,0 +1,54 @@
+:root {
+	--blue: #164197
+}
+
+body {
+  background-image: none;
+  background-color: #fcec00;
+}
+
+.dashboard-image {
+	display: none;
+}
+
+
+.logo, .header .navbar-brand img {
+  background-color: white;
+  padding: 5px;
+  width: 180px;
+  left:0px;
+  position: absolute;
+}
+
+/* Menu setup */
+.menu .nav-link {
+  color: var(--blue);
+}
+
+/*!***/
+/* * Menu mouseover settings*/
+/* *!*/
+/* mobile menu first */
+div.header div#nav-collapse ul.nav.d-block.d-md-none.navbar-nav li.nav-item a.nav-link,
+/*.menu .nav1:not(.link-dashboard) > .router-link-active,*/
+.menu .nav-link:not(.router-link-active):hover,
+.menu .nav1 .nav-link:not(.router-link-active):hover,
+.menu .nav-link:not(.router-link-active):hover,
+.menu .submenu .nav-link:hover
+{
+	font-weight: bold;
+	color: var(--blue);
+}
+
+.menu .nav1 .nav-link:hover, .menu .nav-link:hover,
+.nav1:not(.link-dashboard) > .router-link-active
+{
+	color: black;
+}
+
+
+
+/*scroll spy dot*/
+.menu .submenu .nav-link.active::before {
+	background-color: var(--blue);
+}

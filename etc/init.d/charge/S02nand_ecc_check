@@ -1,0 +1,83 @@
+#!/bin/sh
+#
+# Writes out a file that makes it easy to check if the NAND uses
+# on-die or software ECC, as the setting from the DTB are probably
+# wrong and thus the value in
+#
+# /sys/devices/platform/ahb/40000000.nand/of_node/nand-ecc-mode
+#
+# incorrect!
+#
+# Test is done by first looking for a line from dmesg. As this can be
+# give a wrong result in case the kernel buffer is short and there was
+# lots of output, we also check the OOB of the first page of one of the
+# kernel partitions. That page is never completely empty and the 8 bytes
+# starting at offset 48 of the OOB can't be all 0xff with software ECC
+# (as the ECC is the last 24 bytes of the OOB). But they are so with
+# on-die ECC where the ECC bytes are in byte 8 to 15, 24 to 31, 40 to
+# 47 and 56 to 63 with all other bytes of the OOB set to 0xff.
+
+
+. /lib/ebee_funcs
+
+ECC_FILE=/var/lib/ebee/nand_ecc_type
+
+
+create_ecc_file()
+{
+    # Don't recrate file if it already exists
+
+    [ -e $ECC_FILE ] && return
+
+    mkdir -p $(dirname $ECC_FILE)
+
+    LINUX4_14_MESS='nand: using on-die ECC'
+    LINUX4_4_MESS='atmel_nand: Detected Micron NAND with On-Die ECC enabled'
+
+    if dmesg | grep -Eq "($LINUX4_14_MESS)|($LINUX4_14_MESS)"
+	then
+        echo "on-die" > $ECC_FILE
+    else
+        if /usr/sbin/nanddump -n -o -s 0 -l 2048 -a /dev/mtd4ro 2>/dev/null \
+           | od -x -j 2096 -N 8 -t x8 | grep -q ffffffffffffffff
+		then
+            echo "on-die" > $ECC_FILE
+        else
+            echo "soft" > $ECC_FILE
+        fi
+    fi
+
+    chmod 444 $ECC_FILE
+}
+
+
+delete_ecc_file()
+{
+    rm -f $ECC_FILE
+}
+
+
+case "$1" in
+    start)
+        echo -n "Checking for NAND ECC type: "
+        create_ecc_file
+        echo "detected $(cat $ECC_FILE) ECC"
+        ;;
+    stop)
+        delete_ecc_file
+        ;;
+    restart|reload)
+        "$0" stop
+        "$0" start
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+        ;;
+esac
+
+
+# Local variables:
+# tab-width: 4
+# indent-tabs-mode: nil
+# End:

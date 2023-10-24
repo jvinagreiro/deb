@@ -1,0 +1,273 @@
+<div>
+	<style>
+		.popuptitle h1 span {
+			 font-size: 0.8em;
+		} 
+		#popupheader span {
+			padding: 10px 2px;
+			width: 50px;
+			font-weight: bold; 
+			display: inline-block;
+		}
+		#btns button {
+			width: 25%;
+			margin: 0px 2px;
+			display: inline-block;
+ 		} 
+		.input {
+			margin: 4px 0px; 
+		}
+		.input span, .header :nth-child(1) {
+			width: 40px;
+			display: inline-block;
+		}
+		.input input{
+			border-width: 2px;
+			width: 50px;
+			margin-left: 5px; 
+		}
+		.input button {
+			margin: 0px 5px; 
+			border: 2px solid lightgray;
+			background-color: lightgray;
+			border-radius: 10px;
+		}
+		.input button:hover {
+			background-color: orange;
+			border: 2px solid orange;
+		}
+		.mcontent button {
+			margin: 5px; 
+		}
+		#summary {
+			padding-top: 10px;
+			visibility: hidden;
+		}
+	</style>
+
+	<div id="mcontent">
+		<div class="popuptitle"><h1>Main Distribution Limit<br /><span>24h Time Profile (local time)</span></h1></div>
+		<div id="popupheader"></div>
+		<div id="profile"></div>
+		<div id="btns"></div>
+		<div id="summary"></div>
+	</div> 
+	<script type="text/javascript">
+
+	if (!window.dlmschedule){
+		window.dlmschedule={
+			timeinputs: [],
+			profile:undefined
+		};
+	} else {
+		window.dlmschedule.timeinputs = [];
+		window.dlmschedule.profile = undefined;
+	}
+
+	function get(txt){
+		return document.getElementById(txt);
+	}
+
+	function createElement(type, props){
+		let d = document.createElement(type); 
+		if (props) {
+			for (let p in props){
+				d[p] = props[p];
+			}
+		}
+		return d;
+	}
+
+	function summarize(){
+		let summary = get("textsum"); 
+		let ti = window.dlmschedule.timeinputs;
+		let json = [];
+		for(let i = 0; i < ti.length; ++i){
+			json.push({
+				startPeriod: ti[i].querySelectorAll("select")[0].value,
+				limit:(function(){
+					let nl = ti[i].querySelectorAll("input");
+					var arr = [];
+					for(let j = nl.length; j--; arr.unshift(nl[j].value));
+					return arr;
+				})()
+			});
+		}
+		summary.value=JSON.stringify(json);
+	}
+
+	function checkSanity(){
+		let ti = window.dlmschedule.timeinputs;
+		for (let i = 0; i < ti.length; ++i){
+			let n = ti[i].querySelectorAll("select")[0].value; 
+			for (let j = i+1; j < ti.length; ++j){
+				if (n == ti[j].querySelectorAll("select")[0].value){
+					alert("Hour " + n + " appears multiple times. This may lead to undefined behavior");
+				}
+			}
+		}
+	}
+ 
+	function create24HourSelect(startat){
+		let select = createElement('select');
+		for (let i = 0; i < 24; ++i){ 
+			select.appendChild(createElement('option', {innerHTML: i, value: i}));
+		}
+		select.value=startat;
+		return select;
+	}
+
+	function getDeleteRowFunction(number, element){
+		return function(evt){
+			element.parentNode.removeChild(element); 
+			let ti = window.dlmschedule.timeinputs;
+			ti.splice(ti.findIndex(function(d){return this == d;}, element),1);
+			summarize();
+		};
+	}
+
+	function createInputDiv(id, number, className){
+		let div = createElement('div', {className:className});  
+		div.appendChild(create24HourSelect(number));
+		div.appendChild(createElement('input', {type: "number", min: 0, value: 0}));
+		div.appendChild(createElement('input', {type: "number", min: 0, value: 0}));
+		div.appendChild(createElement('input', {type: "number", min: 0, value: 0}));
+		div.appendChild(createElement('button', {innerHTML: 'x', onclick: getDeleteRowFunction(number, div)}));
+		return div;
+	}
+
+	function clean(element){
+		while (element.childNodes.length > 0){
+			element.removeChild(element.childNodes[0]);
+		}
+	}
+
+	function handleReceivedData(res){ 
+		if (this.readyState == 4 && this.status == 200) { 
+			window.dlmschedule.timeinputs = []; 
+			clean(window.dlmschedule.profile); 
+			try { 
+				let jRes = JSON.parse(res.target.responseText);  
+				let timeinputs = window.dlmschedule.timeinputs;
+				for (let i = 0; i < jRes.length; ++i) {
+					let id = createInputDiv("hr", jRes[i].startPeriod, "input");
+					let inps = id.querySelectorAll("input");
+					inps[0].value = jRes[i].limit[0];
+					inps[1].value = jRes[i].limit[1];
+					inps[2].value = jRes[i].limit[2];
+					timeinputs.push(id);
+					window.dlmschedule.profile.appendChild(id);
+				}
+				summarize();
+			} catch(e) { 
+				try {
+					get("popupheader").parentNode.removeChild(get("popupheader"));
+					get("profile").parentNode.removeChild(get("profile"));
+					get("btns").parentNode.removeChild(get("btns"));
+					clean(get("summary"));
+					get("summary").innerHTML="<p style='font-size:20px;'>Please click Save before configuring<p>";
+					return;
+				} catch(f) {
+					console.log(f);
+				}
+			}
+		}
+	}
+
+	function handleSentData(res){
+		if (this.status == 200 ){
+			summarize();
+		}
+	}
+
+	function handleReceiveError(err){
+		alert("Receive Data Error");
+		console.error(err);
+	}
+
+	function handleSentError(err){
+		alert("Send Data Error");
+		console.error(err);
+	}
+
+	function handleLoadEnd(err) { 
+    	if(err.target.status == 404) {
+        	alert("Time table not initialized. Please restart before creating a schedule.");
+		}
+	}
+
+	function addTimePeriod(){
+		let ti = window.dlmschedule.timeinputs;
+		if (ti.length >= 24){
+			alert("Too many entries. Maximum of 24 entries allowed");
+			return;
+		}
+		let lastval = ti.length > 0? 
+			ti[ti.length-1].querySelectorAll("select")[0].selectedOptions[0].value: -1;
+
+		lastval = Number(lastval)+1;  
+		lastval = isNaN(lastval)?0:lastval; 
+		lastval = lastval > 23?0:lastval;
+		
+		let inputdiv = createInputDiv('hr', lastval, "input");
+		window.dlmschedule.timeinputs.push(inputdiv);
+		window.dlmschedule.profile.appendChild(inputdiv);
+		summarize();
+	}
+
+	function getValues(){
+		let req = new XMLHttpRequest();
+		req.addEventListener('readystatechange', handleReceivedData);
+		req.addEventListener('error', handleReceiveError);
+		req.open("GET", "/dlm/timetable", true);
+		req.send();
+	}
+
+	function setValues(){
+		checkSanity();
+		let data = "";
+		let timeinputs = window.dlmschedule.timeinputs;
+		let req = new XMLHttpRequest(); 
+		req.open("POST", "/dlm/timetable", true);
+ 		req.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
+		req.addEventListener('load', handleSentData);
+		req.addEventListener('error', handleSentError);
+		req.addEventListener('loadend', handleLoadEnd);
+
+		summarize();
+		req.send(get("textsum").value);
+	}
+
+	function setup(){
+		let content = get('mcontent'); 
+		let btns = get('btns');
+		let summary = get('summary');
+		window.dlmschedule.profile = get('profile');  
+
+		let send = createElement('button', {innerHTML:"Save"});
+		//let bget = createElement('button', {innerHTML:"Get"});
+		let add = createElement('button', {innerHTML:"Add"});
+		let headdiv = get('popupheader');
+
+		headdiv.appendChild(createElement('span', {innerHTML:"Hour"}));
+		headdiv.appendChild(createElement('span', {innerHTML:"L1"}));
+		headdiv.appendChild(createElement('span', {innerHTML:"L2"}));
+		headdiv.appendChild(createElement('span', {innerHTML:"L3"}));
+		headdiv.appendChild(createElement('span', {innerHTML:"&nbsp;"}));
+
+		add.addEventListener('click', addTimePeriod)
+		send.addEventListener('click', setValues); 
+		//bget.addEventListener('click', getValues);
+
+		btns.appendChild(add);
+		btns.appendChild(send);
+		//btns.appendChild(bget);
+
+		summary.appendChild(createElement('textarea', {id: 'textsum', rows: 6, cols: 50, readOnly: true}));
+	}
+
+	setup();
+	getValues();
+
+	</script>
+</div>

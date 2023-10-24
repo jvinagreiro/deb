@@ -1,0 +1,54 @@
+#!/bin/sh
+#
+# Starts and stops the DLM coordinator if required
+
+start_dlmc()
+{
+    if grep -qi 'Enabled (with local MQTT broker)' /home/charge/persistency/DlmCMode_dlmc 2> /dev/null
+    then
+        echo -n "Starting DLM coordinator: "
+        start-stop-daemon -S -q -m -b -p /var/run/dlmd.pid \
+            --exec /home/charge/dlmcoordinator_stripped -- \
+            --port=8883 \
+            --use-tls=true \
+            --host=127.0.0.1 \
+            --cafile=/home/charge/certificates/mosquitto/ca.crt \
+            --certfile=/home/charge/certificates/mosquitto/server.crt \
+            --keyfile=/home/charge/certificates/mosquitto/server.key \
+            [ "$?" = "0" ] && echo "done" || echo "failed"
+    fi
+}
+
+
+stop_dlmc()
+{
+    [ -e "/var/run/dlmd.pid" ] || return
+
+    echo -n "Stopping DLM coordinator: "
+    start-stop-daemon -K -q -p /var/run/dlmd.pid
+    [ "$?" = "0" ] && echo "done" || echo "failed"
+}
+
+
+case "$1" in
+    start)
+        start_dlmc
+        ;;
+    stop)
+        stop_dlmc
+        ;;
+    restart|reload)
+        "$0" stop
+        "$0" start
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+        ;;
+esac
+
+
+# Local variables:
+# tab-width: 4
+# indent-tabs-mode: nil
+# End:

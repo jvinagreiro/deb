@@ -1,0 +1,29 @@
+#!/bin/sh
+
+# remove half-installed packages from status file
+OPKG_STATUSFILE="/var/lib/opkg/status"
+ret=$(grep -m1 -n "half-installed" $OPKG_STATUSFILE 2> /dev/null)
+if [ $? -eq 0 ]; then
+  line=$(echo $ret | cut -f1 -d:)
+  start=`expr $line - 2`
+  end=`expr $line + 1`
+  range="$start,$end""d"
+  sed -e $range $OPKG_STATUSFILE >new_s
+  mv new_s $OPKG_STATUSFILE
+fi
+
+# empty filelist
+OPKG_FILELIST="/var/lib/opkg/info/ebee-firmware.list"
+if [ -f $OPKG_FILELIST ]; then
+  echo "/home/charge/.nothing" > $OPKG_FILELIST
+fi
+
+OPTS="-t /home/charge"
+
+if [ -f /home/charge/opkg.conf ]; then
+  OPTS="$OPTS -f /home/charge/opkg.conf"
+fi
+
+logger "executing 'opkg $OPTS $*'"
+
+opkg $OPTS $*

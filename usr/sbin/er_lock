@@ -1,0 +1,761 @@
+#!/bin/sh
+#
+# Script for locking a system in Eichrecht mode
+#
+#  Copyright (c) 2020, Ebee Smart Technologies GmbH
+#
+# In order fully lock a system, this script will
+#
+# 1) create configuration files for evmd, containing the serial
+#    number of the attached meter, the capsule ID and the cable
+#    loss factor.
+# 2) Ensure that the sshd daemon will be run as user 'charge'
+# 3) Remove suid bits and capabilities from all programs and
+#    replace symlinks of Eichrecht-relevant programs by hardlinks.
+# 4) Remove passwords for the 'root' and 'eichrecht' accounts to make it
+#    impossible to log into them. Also clean up the home directories of
+#    both accounts.
+# 5) Install the new public key for verifying updates of locked-down systems
+# 6) Create the Eichrecht log file
+# 7) Mark the system as locked
+# 8) Install the file with the targt hash (or calculate it)
+# 9) Reboot immediately to avoid any further changes to the system. This
+#    also results in all permissions, ownerships and capabilities getting
+#    re-checked and set as necessary.
+#
+#  -h,--hash          target_hash                (type specific)
+#
+# Mandatory arguments:
+#  -c,--capsule_id   'Messkapsel-Id'            (device individual)
+#  -l,--loss_factor  cable_loss_factor          (type specific)
+#  -p,--public_key   inner_SW_update_public key (either as a file or a hex
+#                                                or base64 string)
+#
+#  -e,-exec          what to do (for testing purposes, optional)
+#
+#
+# Make the script abort on the first non-checked for error. So if
+# anything should go wrong without it being tested for it will
+# abort immediately.
+# Note: you can't do e.g.
+#
+#  cmd
+#  if [ "$?" -ne "0" ]; then...
+#
+# as if 'cmd' fails the script already will have exited. So use instead
+#
+#  if ! cmd; then
+#
+
+set -e
+
+
+#-----------------------------------------------------------------
+# Prints out usage information
+#
+
+usage()
+{
+	cat >&2 <<EOF
+Usage: er_lock ARGS
+Locks down a system to make it Eichrecht compliant.
+
+Mandatory arguments:
+  -c,--capsule_id   'Messkapsel-Id', a non-empty string
+  -l,--loss_factor  cable loss factor, a positive integer
+  -p,--public_key   public key for inner SW updates, can be either a file
+                    or a string with the public key encoded as a hex string
+                    or with base64
+
+Optional argument:
+  -h,--hash          target hash as a 64 char long hex string,
+                     if not given the target hash of the system
+                     will be calculated and printed out
+EOF
+	exit 1
+}
+
+
+#-----------------------------------------------------------------
+# Create 'locked-down' file and make it immutable. Additionally
+# make it owned by root alone (which gets disabled) and make
+# it readable by everyone (so 'lsattr' can be used on it).
+#
+# Also create an 'eichrecht-clean' file which, if it doesn't
+# exist in combination with the existence of the "locked-down"
+# file marks the system as compromised. Make it writable by
+# eichrecht so it can declare the system as no longer being
+# compliant with Eichrecht by deleting the file.
+#
+
+mark_system_locked_and_clean()
+{
+	echo "Marking system as locked for Eichrecht"
+
+	mkdir -p             /etc/eichrecht
+	chown root:eichrecht /etc/eichrecht
+	chmod ug=rwx,o=rx    /etc/eichrecht
+
+	touch           /etc/eichrecht/eichrecht.locked
+	chown root:root /etc/eichrecht/eichrecht.locked
+	chmod ugo=r     /etc/eichrecht/eichrecht.locked
+
+	touch                     /etc/eichrecht/eichrecht.clean
+	chown eichrecht:eichrecht /etc/eichrecht/eichrecht.clean
+	chmod u=rw,go=r           /etc/eichrecht/eichrecht.clean
+
+	# Write first entry into the Eichrecht log file. This must be done
+	# as user 'eichrecht' as only this account may use the 'evm-log'
+	# program. But as only root can write to the log file that program
+	# must be owned by root and be suid'ed.
+
+	chown root:root    /home/eichrecht/evm-log
+	chmod u=rwxs,go=rx /home/eichrecht/evm-log
+	su -c "/home/eichrecht/evm-log 'System locked for Eichrecht'" eichrecht
+}
+
+
+#------------------------------------------------------------------
+# Write device-specific configuration data for evmd.
+#
+
+: "${EVMD_SOCKET_FILE:="/tmp/evmd/evmd.sock"}"
+: "${EVMD_DEVICE_CONF_FILE:="/home/eichrecht/device.conf.json"}"
+: "${EVMD_USER:="eichrecht"}"
+: "${EVMD_GROUP:=$EVMD_USER}"
+
+set_evmd_device_params()
+{
+	echo "Setting evmd device parameters"
+
+	_METER_SERIAL_NUM="$(get_meter_serial)"
+	cat > "${EVMD_DEVICE_CONF_FILE}" <<DEVICE_PARAMS_HERE
+{
+    "meter": {
+        "meter_serial": "${_METER_SERIAL_NUM}"
+    },
+    "eichrecht": {
+        "capsule_id": "$CAPSULE_ID"
+    }
+}
+DEVICE_PARAMS_HERE
+
+	chown eichrecht:"${EVMD_GROUP}" "${EVMD_DEVICE_CONF_FILE}"
+	chmod u=rw,go=                  "${EVMD_DEVICE_CONF_FILE}"
+}
+
+
+#------------------------------------------------------------------
+# Write type-specific configuration data for evmd.
+#
+
+: "${EVMD_TYPE_CONF_FILE:="/home/eichrecht/type.conf.json"}"
+: "${EVMD_EICHRECHT_TARGET_HASH_FILE:="/home/eichrecht/eichrecht.hash"}"
+: "${EVMD_USER:="eichrecht"}"
+: "${EVMD_GROUP:=$EVMD_USER}"
+
+set_evmd_type_params()
+{
+	echo "Setting evmd type parameters"
+
+	json-merge -i "${EVMD_TYPE_CONF_FILE}" - <<TYPE_PARAMS_HERE
+{
+    "meter": {
+        "loss_compensation": $LOSS_FACTOR
+    },
+    "eichrecht": {
+        "sys_hash": "${EVMD_EICHRECHT_TARGET_HASH_FILE}"
+    }
+}
+TYPE_PARAMS_HERE
+
+	chown root:"${EVMD_GROUP}" "${EVMD_TYPE_CONF_FILE}"
+	chmod ug=r,o=              "${EVMD_TYPE_CONF_FILE}"
+}
+
+
+get_meter_serial()
+{
+	_EVMD_RESPONSE="$(echo '{"jsonrpc": "2.0", "id": 1, "method": "meter_meta"}' \
+		| socat -t 5 - UNIX:$EVMD_SOCKET_FILE)"
+	if echo "${_EVMD_RESPONSE}" | grep -q error ; then
+		echo "er_lock: failed to get serial from meter: ${_EVMD_RESPONSE}" >&2
+		exit 1
+	fi
+	echo "${_EVMD_RESPONSE}" | sed -n 's/.\+"serial": *"\([^"]*\)".\+/\1/p'
+}
+
+
+#-----------------------------------------------------------------
+# Make sure that the ssh daemon (dropbear) is run by the 'charge'
+# user by removing the symlink /etc/init.d/S50dropbear. It pointed
+# to the script in /etc/init.d/charge of the same name which will
+# now be used to start dropbear as user 'charge' instead of 'root'.
+#
+
+run_sshd_as_charge()
+{
+	echo "Running ssh daemon as user 'charge'"
+	rm /etc/init.d/S50dropbear 2> /dev/null || :
+}
+
+
+#-----------------------------------------------------------------
+# Update the file with the public key which is used to check the
+# signatures of "inner Eichrecht" updates
+#
+
+set_public_key()
+{
+	echo "Setting public SW update key"
+
+	cp "$PUBLIC_KEY" /home/eichrecht/sw_update.pub
+	chown eichrecht:eichrecht /home/eichrecht/sw_update.pub
+	chmod ug=rw,o=            /home/eichrecht/sw_update.pub
+	rm "$PUBLIC_KEY"
+}
+
+
+#-----------------------------------------------------------------
+# Replace all symlinks to the program given as the argument (by full
+# path!) by hard links and make them exclusively owned by root. The
+# argument must be an executable file and may not itself be a symlink.
+#
+
+convert_symlinks()
+{
+	target=$1
+
+	if [ ! -x $target -o -L $target ]
+	then
+		echo "er_lock: '$target' is not an executable or is a symlink" >&2
+		return
+	fi
+
+	for d in / /bin /sbin /usr/bin /usr/sbin /usr/local/bin
+	do
+		for p in $(ls $d)
+		do
+			[ ! -L $d/$p ] && continue
+			[ $(readlink -f $d/$p) != "$target" ] && continue
+
+			if ! ln -f "$target" $d/$p
+			then
+				echo "er_lock: couldn't make $d/$p a hardlinkt to $target" >&2
+				exit 1
+			fi
+		done
+	done
+}
+
+
+#-----------------------------------------------------------------
+# Check for a number of programs that will be immutable under Eichrecht
+# conditions as they're run by root. If there exist symlinks to them
+# replace the symlinks by hard links as symlinks can be replaced with
+# permissions of 'charge', which would allow to make them point to
+# potentially malicous programs that then might be invoked by root
+# upon system start.
+#
+
+replace_critical_symlinks()
+{
+	echo "Replacing symlinks to critical programs by hard links"
+
+	for p in /bin/busybox                 \
+			 /usr/sbin/pppd               \
+			 /usr/sbin/xtables-multi      \
+			 /usr/bin/dbus-daemon         \
+			 /usr/bin/dbus-uuidgen        \
+			 /sbin/syslogd                \
+			 /sbin/klogd                  \
+			 /usr/sbin/gpio_x             \
+			 /usr/sbin/setcap             \
+		     /usr/bin/setfattr            \
+	         /usr/bin/setfacl             \
+	         /usr/sbin/capsh              \
+			 /usr/sbin/cdc_ether.sh       \
+		     /usr/bin/base64dec           \
+			 /lib/ebee_funcs              \
+			 /usr/sbin/check_mtd.sh       \
+			 /etc/mdev.action             \
+			 /home/eichrecht/system_hash  \
+		     /home/eichrecht/ebee_opkg    \
+		     /home/eichrecht/evm-log
+	do
+		convert_symlinks $p
+	done
+}
+
+
+#-----------------------------------------------------------------
+# Goes through all directories on the system (except those
+# that get removed on reboot) and removes all capabilities
+# and suid bits from regular, executable files. When done
+# replaces all symlinks to Eichrecht-relevant programs.
+# Note: this takes quite some time, more than a minute.
+#
+
+purge_system()
+{
+	# If we're called without an argument this is for '/'
+
+	if [ -z "$1" ]
+	then
+		echo "System-wide removal of suid bits and capabilities"
+		local dir='/'
+	else
+		local dir=$1
+	fi
+
+	# Skip directories that are mount points for temporary file systems
+
+	for f in /proc /sys /config /tmp /run /dev/pts /dev/shm
+	do
+		[ $f == $dir ] && return
+	done
+
+	# Recursively go through all files and directories
+
+	for f in $(ls -a $dir)
+	do
+		[ $f == '.' -o $f == '..' ] && continue
+
+		if [ -d "$1/$f" ]
+		then
+			purge_system "$1/$f"
+		else
+			if [ -x "$1/$f" ]
+			then
+				setcap -r "$1/$f" 2>/dev/null || :
+				chmod u-s,g-s "$1/$f"
+			fi
+		fi
+	done
+
+	# Replace symlinks to Eichrecht-relevant programs
+
+	if [ -z $1 ]
+	then
+		replace_critical_symlinks
+	fi
+}
+
+
+#-----------------------------------------------------------------
+# For the 'root' and 'eichrecht' account remove the password from
+# /etc/shadow (replacing it by '*', disallowing log-ins). Also
+# remove the log-in shell for 'root'.
+# Wipes out the '/root' directory and remove an '.ssh' directory
+# from /home/eichrecht, which could contain an 'authorized_keys'
+# file.
+# Note: 'eichrecht must be able to inspect the (empty) /root
+# directory as it runs 'system_hash' and thus must hash the
+# contents of that directory.
+#
+# Also note: the lines for root and eichrecht in /etc/shadow become
+# included into the system hash. Thus we can't use just 'passwd -l'
+# to disable the accounts, as that only prepends the existing password
+# with a '!', thus making the hash contain the previously set password,
+# To avoid that we first have to wipe the password with 'passwd -d' be-
+# fore disabling it with 'passwd -l'.
+
+disable_accounts()
+{
+	echo "Disabling 'root' and 'eichrecht' accounts"
+
+	sed -i 's/^root:\(.*\)\/bin\/sh/root:\1\/bin\/false/' /etc/passwd
+	passwd -d root > /dev/null
+	passwd -l root > /dev/null
+
+	rm -rf /root 2> /dev/null
+	mkdir /root
+	chown root:eichrecht /root
+	chmod u=rwx,g=rx,o=  /root
+
+	passwd -d eichrecht > /dev/null || :
+	passwd -l eichrecht > /dev/null || :
+	rm -rf /home/eichrecht/.ssh 2> /dev/null
+}
+
+
+#-----------------------------------------------------------------
+# Creates the empty Eichrecht log file. It may not exist yet.
+# Make it owned by root, readable by all but writable only by
+# root. Also set the "append only" flag on it so it can't be
+# deleted or already present contents modified.
+#
+
+create_log_file()
+{
+	echo "Creating Eichrecht log file"
+
+	name=$(/home/eichrecht/evm-log -f)
+	if [ -z $name ]
+	then
+		echo "er_lock: failed to determine log file name" >&2
+		exit 1
+	fi
+
+	if [ -e $name ]
+	then
+		echo "er_lock: log file already exists" >&2
+		exit 1
+	fi
+
+	touch           $name
+	chown root:root $name
+	chmod u=rw,go=r $name
+	chattr +a       $name
+}
+
+
+#-----------------------------------------------------------------
+# Creates the target hash file the calculated system hash
+# will be compared to and sets proper permissions.
+# Note: the file must be writable by 'eichrect' as its
+# content may have to be changed during an inner Eichrecht
+# update.
+#
+
+set_target_hash()
+{
+	# Note: evmd only accepts a file with a single, new-line (i.e. 0x0a)
+	# terminiated line. File must be modifiable by 'eichrecht' as the
+	# hash can change (and then must be replaced) by Eichrecht updates
+
+	echo "$TARGET_HASH" >     ${EVMD_EICHRECHT_TARGET_HASH_FILE}
+	chown eichrecht:eichrecht ${EVMD_EICHRECHT_TARGET_HASH_FILE}
+	chmod ug=rw,o=            ${EVMD_EICHRECHT_TARGET_HASH_FILE}
+}
+
+
+#-----------------------------------------------------------------
+# Calculates and sets the target hash
+#-----------------------------------------------------------------
+
+calc_and_set_target_hash()
+{
+	# Permissions and ownership (but not the content) of the target hash file
+	# go into the hash, so create a dummy file before starting to calculate
+	# the hash value
+
+	TARGET_HASH="83aa29f088e4ee89a28e9858c8d072f755b611ace819f48beea928474a0d8f68"
+	set_target_hash
+
+	# Set up everything as it would after a reboot of a locked system
+
+	/etc/init.d/S00permissions start
+
+	# Calculate and then write out the target hash
+
+	echo "Calculating target hash"
+	TARGET_HASH=$(/home/eichrecht/system_hash -v 2> /log/target_hash.log)
+	check_hash
+	set_target_hash
+
+	echo "er_lock: Target hash is '$TARGET_HASH'"
+}
+
+
+#-----------------------------------------------------------------
+# Tests if this script is run by root and if it's run on a system
+# with an UBI file system (as a system with JFFS2) can't be
+# protected well enough for Eichrecht purposes).
+# Beside that we also need a valid system time to be able
+# to put a valid entry into the Eichrecht log file.
+#
+
+ensure_we_can_lock()
+{
+	if [ $(id -u) != "0" ]
+	then
+		echo "er_lock: only root can lock the system for Eichrecht" >&2
+		exit 1
+	fi
+
+	if [ ! -c /dev/ubi0 ]
+	then
+		echo "er_lock: system can't be made Eichrecht-compliant" >&2
+		exit 1
+	fi
+
+	# Check for a reasonable system time
+
+	year=$(date | awk '{print $6}')
+	if [ $year -lt 2020 ]
+	then
+		echo "er_lock: system time not valid"
+		exit 1
+	fi
+}
+
+
+#-----------------------------------------------------------------
+# Checks the target hash argument which must be a 64 character
+# long hex string
+#
+
+check_hash()
+{
+	if [ -z $(echo "$TARGET_HASH" | sed 's/ //g') ]
+	then
+		echo "er_lock: missing or empty target hash argument" >&2
+		usage
+	fi
+
+	# evmd expects the hash in lower case
+
+	TARGET_HASH=$(echo "$TARGET_HASH" | tr "ABCDEF" "abcdef")
+
+	if ! (echo "$TARGET_HASH" | grep -Eq '^[a-f0-9]{64}$')
+	then
+		echo "er_lock: target hash argument isn't a 64 char long hex string" >&2
+		usage
+	fi
+}
+
+
+#------------------------------------------------------------------
+# Checks the capsule ID argument
+#
+
+check_capsule_id()
+{
+	if [ -z $(echo "$CAPSULE_ID" | sed 's/ //g') ]
+	then
+		echo "er_lock: missing or empty capsule ID argument" >&2
+		usage
+	fi
+}
+
+
+#------------------------------------------------------------------
+# Tests the loss factor argument which must be a positive integer
+#
+
+check_loss_factor()
+{
+	if [ -z $(echo "$LOSS_FACTOR" | sed 's/ //g') ]
+	then
+		echo "er_lock: missing or empty loss factor argument" >&2
+		usage
+	fi
+
+	if ! (echo "$LOSS_FACTOR" | grep -Eq '^[0-9]+$')
+	then
+		echo "er_lock: loss factor argument isn't a positive integer" >&2
+		usage
+	fi
+}
+
+
+#-----------------------------------------------------------------
+# Checks the public key argument and. It can be either a
+# (readable) file or a string with the (binary) public key
+# either as a hex string or base64 encoded. In tha latter
+# cases convert the string back to binary and write it into
+# a temporary file.
+#
+
+check_public_key()
+{
+	if [ -z $(echo "$PUBLIC_KEY" | sed 's/ //g') ]
+	then
+		echo "er_lock: missing or empty public key argument" >&2
+		usage
+		fi
+
+	# Check if the argument is a file that is readable
+
+	if [ -f "$PUBLIC_KEY" ]
+	then
+		if [ ! -r "$PUBLIC_KEY" ]
+		then
+			echo "er_lock: file '$PUBLIC_KEY' given as public key argument can't be read" >&2
+			exit 1
+		fi
+
+		# Make a temporary copy of the public key file - it may reside in
+		# /root which gets deleted.
+
+		tmp=$(mktemp)
+		cp "$PUBLIC_KEY" $tmp
+		rm "$PUBLIC_KEY"
+		PUBLIC_KEY=$tmp
+		return
+	fi
+
+	# Check if the argument could be a hex string. If yes copy it into a
+	# temporary file to be later copied to the correct place.
+
+	tmp=$(mktemp)
+
+	if /usr/bin/hexdec "$PUBLIC_KEY" > "$tmp" 2>/dev/null
+	then
+		PUBLIC_KEY=$tmp
+		return
+	fi
+
+	# Check if the argument could be a base64 encoded string
+
+	if /usr/bin/base64dec "$PUBLIC_KEY" > "$tmp" 2>/dev/null
+	then
+		PUBLIC_KEY="$tmp"
+		return
+	fi
+
+	echo "er_lock: invalid public key argument" >&2
+	usage
+}
+
+
+#-----------------------------------------------------------------
+# Does everything required to bring the system into the Eichrecht
+# compliant state and then immediately reboots it.
+#
+
+lock_all()
+{
+	ensure_we_can_lock
+
+	# We may be called without a target hash, in which case we're supposed
+	# to calculate it after having set up everything needed for locking.
+
+	if [ -n "$TARGET_HASH" ]
+	then
+		check_hash
+	fi
+
+	check_capsule_id
+	check_loss_factor
+	check_public_key
+
+	# We better shut down the Ebee app before proceeding - evmd may still
+	# be needed in the first steps, so shut it down only afterwares
+
+	/etc/init.d/charge/S99Ebee stop || :
+
+	# Now the fun starts for real
+
+	echo "Locking system for eichrecht"
+
+	set_evmd_device_params
+	set_evmd_type_params
+
+	/etc/init.d/eichrecht/S97evmd stop || :
+
+	run_sshd_as_charge
+	purge_system
+	disable_accounts
+	set_public_key
+	create_log_file
+	mark_system_locked_and_clean
+
+	# If no target hash argument was given calculate it. Then install
+	# it and reboot, finalizing the locking of the system.
+
+	if [ -z "$TARGET_HASH" ]
+	then
+		calc_and_set_target_hash
+	else
+		set_target_hash
+	fi
+
+	echo "Successfully locked system for Eichrecht, rebooting..."
+	/sbin/reboot
+}
+
+
+#=================================================================
+# Begin of script
+#
+
+# If called with no arguments show usage information
+
+[ $# -ne 0 ] || usage
+
+# Set default action (in case there's no '-e' or '--exec' option)
+
+exec="lock_all";
+
+# Make sure the variables we expect to receive aren't accidentally
+# already set by an environment variable.
+
+TARGET_HASH=""
+CAPSULE_ID=""
+LOSS_FACTOR=""
+PUBLIC_KEY=""
+
+# Evaluate command line arguments
+
+sopts="h:c:l:p:e:"
+lopts="hash:,capsule_id:,loss_factor:,public_key:,exec:"
+
+if ! getopt -o $sopts -l $lopts -n "er_lock" -- "$@" >/dev/null
+then
+	usage
+fi
+
+OPTS=$(getopt -o $sopts -l $lopts -n "er_lock" -- "$@")
+eval set -- "$OPTS"
+
+while [ -n "$1" -a "$1" != "--" ]
+do
+	case "$1" in
+		-h|--hash)
+			TARGET_HASH="$2"
+			;;
+		-c|--capsule_id)
+			CAPSULE_ID="$2"
+			;;
+		-l|--loss_factor)
+			LOSS_FACTOR="$2"
+			;;
+		-p|--public_key)
+			PUBLIC_KEY="$2"
+			;;
+		-e|--exec)
+			exec="$2"
+			;;
+	esac
+
+	shift 2
+done
+
+
+case "$exec" in
+	test_args)
+		check_hash
+		check_capsule_id
+		check_loss_factor
+		check_public_key
+
+		echo "Hash:        $TARGET_HASH"
+		echo "Capsule ID:  $CAPSULE_ID"
+		echo "Loss factor: $LOSS_FACTOR"
+		echo "Public Key:  $PUBLIC_KEY"
+		;;
+	evmd)
+		set_evmd_device_params
+		set_evmd_type_params
+		;;
+	mark_locked)
+		mark_system_locked_and_clean
+		;;
+	sshd)
+		run_sshd_as_charge
+		;;
+	perms)
+		purge_system
+		/etc/init.d/S00permissions start
+		;;
+	lock_all)
+		lock_all
+		;;
+	*)
+		echo "er_lock: invalid command '$exec'" >&2
+		usage
+esac
+
+exit 0

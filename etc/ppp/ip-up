@@ -1,0 +1,23 @@
+#!/bin/sh
+
+/usr/bin/logger "ppp-ip-up: updating DNS entries"
+
+PPP_RESOLV_CONF=/etc/ppp/resolv.conf
+SYSTEM_RESOLV_CONF=/etc/resolv.conf
+REVERSED_PPP_RESOLV_CONF=
+
+while read line; do
+  REVERSED_PPP_RESOLV_CONF=`/bin/echo -e $line'\n'$REVERSED_PPP_RESOLV_CONF`
+done <$PPP_RESOLV_CONF
+
+IFS=$'\n'
+
+for line in $REVERSED_PPP_RESOLV_CONF
+do
+  if /bin/grep -q "$line" $SYSTEM_RESOLV_CONF; then
+    /bin/echo "/usr/bin/logger ppp-ip-up: $SYSTEM_RESOLV_CONF already contains '$line'"
+  else
+    echo "/usr/bin/logger ppp-ip-up: prepending '$line' to $SYSTEM_RESOLV_CONF"
+    /bin/echo -e "$line\n$(/bin/cat $SYSTEM_RESOLV_CONF)" >$SYSTEM_RESOLV_CONF
+  fi
+done

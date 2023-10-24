@@ -1,0 +1,31 @@
+<h1>ChargePointID or ChargeBoxIdentity</h1>
+
+<p> This parameter is necessary for OCPP based communication with the backend 
+system. Its exact use differs depending on the specific version and variant of 
+OCPP in use. The parameter length is limited to 128 characters.</p>
+
+<h2>OCPP-S 1.5 and OCPP-S 1.6</h2>
+<p> In SOAP based OCPP messages the standard defines a SOAP header element called 
+chargeBoxIdentity. This element must be set in every message from a charger to a
+backend system to identify the charging station from which the message was 
+received. This parameter is used to fill this SOAP header element in SOAP based
+OCPP. </p>
+
+<h2>OCPP-J 1.6</h2>
+<p>In JSon based OCPP communication there is no header like in SOAP messages. 
+Instead the ChargePointID is added to the URL when the web socket connection to 
+the backend is established. This parameter is used for that. It is added to the 
+configured backend URL automatically to identify the connecting charger towards
+the backend.</p>
+
+<h2>BootNotification use</h2>
+<p>If no ChargePointSerialNumber (the manufacturer serial number of the 
+charging station) is in the manufacturer parameters, this 
+parameter is also used to fill this field of a OCPP BootNotification message.</p>
+
+<h2>Master slave communication</h2>
+<p>If two or more slave devices are connected, each Slave must identify itself 
+to the master with its respective Connector ID added as a suffix. E.g. #2 or 
+#005 should be appended to the ChargePointID. Please note that suffixes #, #0 
+or #1 are reserved and cannot be used.</p>
+

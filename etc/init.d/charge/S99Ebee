@@ -1,0 +1,115 @@
+#!/bin/sh
+
+. /lib/ebee_funcs
+
+
+power_modem_on()
+{
+    # Nothing to be done if there is no modem
+
+    grep -q '_MODEM' /dev/ebee_variant || return
+    
+    echo -n "Running GSM modem power-up sequence: "
+
+    # Make sure modem power is on (should already have been done
+    # by the kernel so probably it's superfluous).
+
+    /usr/sbin/export_gpio 59
+    echo high > /sys/class/gpio/pioB27/direction
+
+    # The power-on pulse on PB31 is only functional on CC612 and CC1612
+
+    if ! grep -q 'CC1\?612' /dev/ebee_variant
+    then
+        echo "done"
+        return;
+    fi
+        
+    # Now we have to try for some time if a modem shows up.
+    # Quectel seems to take a while. If succesful, we are done
+
+    retries=30;                            # number of seconds we'll be waiting
+    
+    # supported GSM modem USB IDs
+    # Huawei:           "12d1:"
+    # Quectel:          "2c7c:"
+
+    while [ $retries -gt 0 ]
+    do
+        sleep 1
+        # known modem found?
+        if lsusb | grep -q -e '12d1:' -e '2c7c:' 
+        then
+            echo "done"
+            return
+        fi
+        retries=$((retries - 1))
+    done
+    
+    # No modem showed up so it might be an old Huawei modem which needs
+    # a 2 second long pulse on PB31
+
+    /usr/sbin/export_gpio 63
+    echo low > /sys/class/gpio/pioB31/direction
+    usleep 10000
+    echo 1 > /sys/class/gpio/pioB31/value
+    sleep 2
+    echo 0 > /sys/class/gpio/pioB31/value
+    usleep 10000
+    echo in > /sys/class/gpio/pioB31/direction
+    /usr/sbin/unexport_gpio 63
+
+    echo "done"
+}
+
+
+start_ebee_app()
+{
+    # Run GSM modem power up sequence. Modem must be up before Ebee app and
+    # the hw_variant_manager starts. Otherwise HW detection might conclude
+    # a wrong B-number.
+    
+    power_modem_on
+
+   # Launch the one and only Ebee application.
+
+    echo -n "Launching Ebee application: "
+    cwd=$(pwd)
+    cd /home/charge
+    ./ebee_start_script.sh &
+    cd $cwd
+    echo "done"
+}
+
+
+stop_ebee_app()
+{
+    echo -n "Stopping Ebee application: "
+    killall ebee_start_script.sh 2>/dev/null
+    killall ebee_cp_plus_application_stripped 2>/dev/null
+    [ "$?" = "0" ] && echo "done" || echo "failed"
+}
+
+
+case "$1" in
+    start)
+        start_ebee_app
+        ;;
+    stop)
+        stop_ebee_app
+        ;;
+    restart|reload)
+        "$0" stop
+        "$0" start
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+        ;;
+esac
+
+
+# Local variables:
+# tab-width: 4
+# indent-tabs-mode: nil
+# End:

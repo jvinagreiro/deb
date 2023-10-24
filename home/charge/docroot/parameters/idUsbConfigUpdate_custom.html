@@ -1,0 +1,50 @@
+<h1>USB stick based configuration update</h1>
+
+
+<h2>What is this function for?</h2>
+<p>The USB stick based configuration feature allows preparing a USB stick
+that contains one, multiple or all configuration parameters for a charge controller.
+The stick is placed into a charge controller. The charge controller detects the 
+configuration changes, applies them and reboots the charge controller to make 
+the changes take effect. </p>
+
+<p>It is possible to apply only one or a subset of the possible configuration 
+parameters to a charge controller. This way one USB stick could contain all the 
+parameters relevant for the hardware settings. Another USB stick could contain 
+customer specific settings that are independent from the hardware. Yet another one
+could turn on or off the freecharging option. A charge controller could then easily
+be configured by applying multiple USB sticks after another. </p>
+
+<h2>How to use it?</h2>
+
+<h3>Place password file on USB stick</h3>
+<p> To ensure that a person with access to the USB port of the charge controller 
+actually is authorized to make configuration changes, the USB stick needs to 
+contain a file named USB_PASSWORD in the root folder that contains either the 
+operator or manufacturer password. If such a file does not exist, no configuration
+changes are applied.</p>
+
+
+<h3>Place sw_config directory onto USB stick</h3>
+<p>In addition the USB stick should contain a folder named sw_config in the 
+root folder. This folder should contain the files with the parameter changes to 
+be applied.</p> 
+<p> The easiest way to obtain these parameter files is by using another
+USB stick with the file FIELD_ENGINEER as well as the USB_PASSWORD file in the 
+root folder and placing this into a charge controller that has already been 
+configured manually with the correct settings. When the stick is inserted the 
+charge controller will copy its full configuration along with log files onto the
+stick. The parameters to be applied to other charge controllers with the USB 
+stick can then easily be copied into the folder sw_config of the configuration stick.  </p>
+
+
+<h3>Insert stick into charge controller to apply</h3>
+<p> When the stick is inserted the controller will signal by blinking with all 
+front LEDs that the configuration is being applied. After applying the parameter
+changes the controller will reboot automatically. After the reboot when no 
+further changes can be applied from the stick, the controller will signal that 
+by blinking quickly with the ready LED.</p>
+
+<h2>How to disable it?</h2>
+<p> This parameter allows disabling this feature. If disabled, no configuration
+changes are accepted via USB even if the correct password file is present.</p>

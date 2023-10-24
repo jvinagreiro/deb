@@ -1,0 +1,223 @@
+/*!***/
+/* * style sheet for customization*/
+/* * below are the most common classes to be customized*/
+/* * uncomment them to see the changes and adjust to your needs*/
+/* *!*/
+
+:root {
+	--gray: #444;
+	--black: rgb(94, 105, 113);
+	--blue: rgb(0,137,198);
+}
+
+/*!***/
+/* * set global font and color, setup background image (e.g. hide)*/
+/* * to replace the background image: replace the image itself (bg.webp)*/
+/* *!*/
+body {
+  /*font-family: ProximaNovaS-Extrabld, Helvetica, Arial, "Helvetica Neue", sans-serif;*/
+  font-size:0.97rem;
+  /*color: rgb(0,137,198);*/
+   /*color: rgb(94, 105, 113);*/ /* grau */
+   color: var(--gray);
+/*  background-image: none;*/
+/*  background-color: white;*/
+
+}
+
+/* top header with version number, date, time */
+.info-container {
+  color: var(--black);
+}
+
+
+/*!***/
+/* * to replace the logo: replace the image itself (logo.svg)*/
+/* * adjust the size via "width"*/
+/* *!*/
+/*.logo {*/
+/*  width: 160px;*/
+/*}*/
+
+
+/*!***/
+/* * content area*/
+/* *!*/
+/*.content {*/
+/*  background-color: #fff;*/
+/*  -webkit-box-shadow: none;*/
+/*  box-shadow: none;*/
+/*  margin-top: 8em;*/
+/*  padding-top:2em;*/
+/*}*/
+
+
+/*!***/
+/* * menu area*/
+/* *!*/
+/*.sidebar {*/
+/*  -webkit-box-shadow: none;*/
+/*  box-shadow: none;*/
+/*  background-color:#fff;*/
+/*  margin-top: 8em;*/
+/*}*/
+
+
+/*!***/
+/* * Menu setup (font, color, border)*/
+/* *!*/
+.menu .nav-link {
+/*  text-transform: uppercase;*/
+/*  font-weight: bold;*/
+/*  font-size: 15px;*/
+/*  border-color:#c20000;*/
+  color: var(--gray);
+}
+
+
+/*!***/
+/* * Menu mouseover settings*/
+/* *!*/
+.menu .nav1.link-dashboard > .router-link-exact-active,
+.menu .nav1:not(.link-dashboard) > .router-link-active,
+.menu .nav-link:hover,
+.menu .nav1 .nav-link:hover,
+.menu .nav-link:hover
+{
+	color: var(--blue);
+}
+
+/* scroll spy dot */
+.menu .submenu .nav-link.active::before {
+	background-color: var(--blue);
+}
+
+/* change (i) hover icon color to blue */
+.content-row span a img {
+ 	background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiI+PHBhdGggZmlsbD0iIzAwODljNiIgZD0iTTcgNC43NWMwLS40MTIuMzM4LS43NS43NS0uNzVoLjVjLjQxMiAwIC43NS4zMzguNzUuNzV2LjVjMCAuNDEyLS4zMzguNzUtLjc1Ljc1aC0uNUEuNzUzLjc1MyAwIDAgMSA3IDUuMjV2LS41ek0xMCAxMkg2di0xaDFWOEg2VjdoM3Y0aDF6Ii8+PHBhdGggZmlsbD0iIzAwODljNiIgZD0iTTggMGE4IDggMCAxIDAgMCAxNkE4IDggMCAwIDAgOCAwem0wIDE0LjVhNi41IDYuNSAwIDEgMSAwLTEzIDYuNSA2LjUgMCAwIDEgMCAxM3oiLz48L3N2Zz4K");
+	display: block;
+	box-sizing: border-box;
+	width: 16px;
+	height: 16px;
+	padding-left: 16px;
+}
+
+
+/*!***/
+/* * border of last submenu item*/
+/* *!*/
+/*.menu .submenu .nav-item:last-child .nav-link {*/
+/*  border-color:#c20000;*/
+/*}*/
+
+
+/*!***/
+/* * active menu marker*/
+/* *!*/
+/*.menu .nav-link.router-link-exact-active:before {*/
+/*  left: -30px;*/
+/*  top: 10px;*/
+/*  bottom: 11px;*/
+/*  width: 19px;*/
+/*  background-color: #c20000;*/
+/*}*/
+
+
+/*!***/
+/* * white gradient in header*/
+/* *!*/
+/*.header {*/
+/*  background: -webkit-gradient(linear, left top, left bottom, from(rgba(255, 255, 255, 0.8)), to(rgba(255, 255, 255, 0)));*/
+/*  background: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0));*/
+/*}*/
+
+
+/*!***/
+/* * save bar, appearing when values have been changed*/
+/* *!*/
+/*.footer {*/
+/*  background-color: #f1f1f1;*/
+/*  border: 1px solid #c20000;*/
+/*  border-bottom:none;*/
+/*}*/
+
+
+/*!***/
+/* * form control (select, input)*/
+/* *!*/
+/*input.form-control, select.custom-select.form-control {*/
+/*  background-color: #fff;*/
+/*  border-color: #c20000;*/
+/*}*/
+
+
+/*!***/
+/* * form control (select, input) with changed content*/
+/* *!*/
+/*input.form-control.is-changed, select.custom-select.form-control.is-changed {*/
+/*  background-color: #f1f1f1;*/
+/*}*/
+
+
+/* hide login header (redundant) */
+.login-window h1 {
+	display: none;
+}
+
+
+button {
+	background: transparent;
+}
+
+.btn-reset, .btn-save, .btn-restart, .btn-primary {
+	color: var(--blue);
+  	font-weight: bold;
+  	background-color: transparent;
+  	border-color: var(--blue);
+}
+
+.btn-reset:hover, .btn-save:hover, .btn-restart:hover, .btn-primary:hover {
+  color: #ffffff;
+  background-color: var(--blue);
+}
+
+.btn-restart[disabled="disabled"], .btn-save[disabled="disabled"], .btn-reset[disabled="disabled"] {
+	color: var(--gray);
+	border-color: var(--gray);
+}
+
+.btn-restart[disabled="disabled"]:hover, .btn-save[disabled="disabled"]:hover, .btn-reset[disabled="disabled"]:hover {
+	color: var(--gray);
+  	background-color: transparent;
+  	border-color: var(--gray);
+}
+
+/* inline buttons (settings) should be a bit smaller */
+.content-row .btn {
+	padding: 2px;
+	margin: 0px 5px;
+}
+
+
+/*!***/
+/* * main button outline*/
+/* *!*/
+/*.btn-outline-primary {
+  color: #c20000;*/
+/*  border-color: #c20000;*/
+/*}*/
+
+
+/*!***/
+/* * main button outline mouse over*/
+/* *!*/
+/*.btn-outline-primary:hover { */
+/*  color: #FFFFFF;*/
+/* background-color: #c20000;*/
+/*  border-color: #c20000;*/
+/*}*/
+
+/* hide dashboard_image.webp */
+.dashboard-image {
+	display: none;
+}

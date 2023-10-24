@@ -1,0 +1,208 @@
+/*!***/
+/* * style sheet for customization*/
+/* * below are the most commen classes to be customized*/
+/* * uncomment them to see the changes and adjust to your needs*/
+/* *!*/
+
+
+
+/*!***/
+/* * set global font and color, setup background image (e.g. hide)*/
+/* * to replace the background image: replace the image itself (static/bg.webp)*/
+/* *!*/
+/*body {*/
+/*  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;*/
+/*  font-size:0.87rem;*/
+/*  color: #c20000;*/
+/*  background-image: none;*/
+/*  background-color: white;*/
+/*}*/
+
+
+/*!***/
+/* * to replace the logo: replace the image itself (static/logo.svg)*/
+/* * adjust the size via "width"*/
+/* *!*/
+.logo, .header .navbar-brand img {
+  width: 240px;
+  margin-top: 35px;
+  margin-left: -26px;
+}
+
+
+/*!***/
+/* * content area*/
+/* *!*/
+/*.content {*/
+/*  background-color: #fff;*/
+/*  -webkit-box-shadow: none;*/
+/*  box-shadow: none;*/
+/*  margin-top: 8em;*/
+/*  padding-top:2em;*/
+/*}*/
+
+
+/*!***/
+/* * menu area*/
+/* *!*/
+/*.sidebar {*/
+/*  -webkit-box-shadow: none;*/
+/*  box-shadow: none;*/
+/*  background-color:#fff;*/
+/*  margin-top: 8em;*/
+/*}*/
+
+
+/*!***/
+/* * Menu setup (font, color, border)*/
+/* *!*/
+.menu .nav-link {
+/*  text-transform: uppercase;*/
+/*  font-weight: bold;*/
+/*  font-size: 15px;*/
+/*  border-color:#c20000;*/
+  color:#009ab1
+}
+
+
+/*!***/
+/* * Menu mouseover settings*/
+/* *!*/
+/*.menu .nav-link:hover {*/
+/*  color: #000;*/
+/*}*/
+
+
+/*!***/
+/* * border of last submenu item*/
+/* *!*/
+/*.menu .submenu .nav-item:last-child .nav-link {*/
+/*  border-color:#c20000;*/
+/*}*/
+
+
+/*!***/
+/* * active menu marker*/
+/* *!*/
+/*.menu .nav-link.router-link-exact-active:before {*/
+/*  left: -30px;*/
+/*  top: 10px;*/
+/*  bottom: 11px;*/
+/*  width: 19px;*/
+/*  background-color: #c20000;*/
+/*}*/
+
+
+/*!***/
+/* * white gradient in header*/
+/* *!*/
+.header {
+  background: -webkit-gradient(linear, left top, left bottom, from(rgba(255, 255, 255, 0.8)), to(rgba(255, 255, 255, 0)));
+  background: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0));
+/*	margin-bottom: 30px; / * PowerScout yellow top bar * /
+	height: 70px;
+	border-bottom: 1px solid #c2a706;
+	background-image: linear-gradient(#ffd61f, #f6c81f); */
+}
+
+
+/*!***/
+/* * save bar, appearing when values have been changed*/
+/* *!*/
+/*.footer {*/
+/*  background-color: #f1f1f1;*/
+/*  border: 1px solid #c20000;*/
+/*  border-bottom:none;*/
+/*}*/
+
+
+/*!***/
+/* * form control (select, input)*/
+/* *!*/
+/*input.form-control, select.custom-select.form-control {*/
+/*  background-color: #fff;*/
+/*  border-color: #c20000;*/
+/*}*/
+
+
+/*!***/
+/* * form control (select, input) with changed content*/
+/* *!*/
+/*input.form-control.is-changed, select.custom-select.form-control.is-changed {*/
+/*  background-color: #f1f1f1;*/
+/*}*/
+
+
+/*!***/
+/* * main button*/
+/* *!*/
+.btn-primary {
+  /*color: #FFFFFF;*/
+  background-color: #009AB1;
+  border-color: #009AB1;
+}
+.btn-primary:hover {
+  /*color: #FFFFFF;*/
+  background-color: #00889f;
+  border-color: #00889f;
+}
+.btn-primary:focus {
+  /*color: #FFFFFF;*/
+  background-color: #009AB1;
+  border-color: #00889f;
+}
+
+.btn-password-toggle {
+  color: #FFFFFF;
+  background-color: #009AB1;
+  border-color: #bac8e0;
+}
+.btn-password-toggle:hover {
+  color: #FFFFFF;
+  background-color: #00889f;
+  border-color: #bac8e0;
+}
+.btn-password-toggle:focus {
+  color: #FFFFFF;
+  background-color: #009AB1;
+  border-color: #bac8e0;
+}
+
+.btn-secondary {
+  color: #FFFFFF;
+  background-color: #009AB1;
+  /*border-color: #c20000;*/
+}
+.btn-secondary:hover {
+  color: #FFFFFF;
+  background-color: #00889f;
+  /*border-color: #c20000;*/
+}
+.btn-secondary:focus {
+  color: #FFFFFF;
+  background-color: #009AB1;
+  /*border-color: #c20000;*/
+}
+
+
+/*!***/
+/* * main button outline*/
+/* *!*/
+/*.btn-outline-primary {*/
+/*  color: #c20000;*/
+/*  border-color: #c20000;*/
+/*}*/
+
+
+/*!***/
+/* * main button outline mouse over*/
+/*.btn-outline-primary:hover {*/
+/*  color: #FFFFFF;*/
+/*    background-color: #009AB1;*/
+/*  border-color: #c20000;*/
+/*}*/
+
+
+.dashboard-image {
+	display: none;
+}

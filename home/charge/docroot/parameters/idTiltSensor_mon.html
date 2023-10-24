@@ -1,0 +1,30 @@
+<h1>Tilt Detection (CC1612 only)</h1>
+
+
+<h2>Explanation of the different cases:</h2>
+
+
+<h3>Mode 1: "Off"</h3>
+
+
+<p>Tilt detection is disabled.</p>
+
+
+<h3>Mode 2: "On (Continue)"</h3>
+
+
+<p>If the charge point is tilted for more than 20 degree, HMI LEDs are set to red and the current transaction (if present) is stopped. No new transactions are allowed while the charge point is tilted. Once the charge point is restored to its original position (less than 10 degree from the original inclination) the LEDs are set back to green and new charging transactions are allowed.</p>
+
+
+<h3>Mode 3: "On (Prevent)"</h3>
+
+
+<p>If the charge point is tilted for more than 20 degree, HMI LEDs are set to red and the current transaction (if present) is stopped. New transactions are prevented. Once the charge point is rebooted and its original position restored (less than 10 degree from the original inclination) the LEDs are set back to green and new charging transactions are allowed. It is important to notice that once tilted, the charge point must be rebooted to be able to charge again, just restoring to the original position is not enough.</p>
+
+
+<h4>Note</h4>
+
+
+<p>If the charge point is tilted while in mode 2 or mode 3, the tilted error can be deleted by setting mode 1 (Off). If then mode 2 or mode 3 is again used, the reference position is re-calculated. Notice also that setting mode 2 or mode 3 requires a reboot to be effective.</p>
+
+

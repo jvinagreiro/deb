@@ -1,0 +1,37 @@
+/*!***/
+/* * style sheet for customization*/
+/* *!*/
+
+:root {
+	--black: rgb(0,0,0);
+	--blue: #00366b;
+	--yellowgreen: #77cc4b;
+}
+
+.header .navbar-brand img {
+  	width: 100px;
+}
+
+@media (max-width: 768px) {
+	.header .navbar-brand img
+	{
+		position: unset;
+		width: 40px;
+	}
+}
+
+/*!***/
+/* * Menu mouseover and selected menu*/
+/* *!*/
+.menu .nav1.link-dashboard > .router-link-exact-active,
+.menu .nav1:not(.link-dashboard) > .router-link-active,
+.menu .nav-link:hover,
+.menu .nav1 .nav-link:hover,
+.menu .nav-link:hover
+{
+	color: var(--yellowgreen);
+}
+
+.dashboard-image {
+	display: none;
+}

@@ -1,0 +1,4 @@
+alias l='\ls --color=never -F'
+alias ll='\ls --color=never -alF'
+alias ssh='ssh -i /home/charge/.ssh/id_rsa'
+alias scp='scp -i /home/charge/.ssh/id_rsa'

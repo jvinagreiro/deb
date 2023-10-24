@@ -1,0 +1,639 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmldocumentroot>
+<!-- DO NOT REMOVE: dashboard_section_start_marker -->
+<section name="dashboard">
+	<groups>
+		<group key="general" label="General">
+			<fields>
+				<key name="TransactionsInDatabase_sql"></key>
+				<key name="AverageTransactionDurationStr_sql"></key>
+				<key name="AveragekWh_sql"></key>
+			</fields>
+		</group>
+		<group key="statistics" label="Last month">
+			<fields>
+				<key name="TransactionsThisMonth_sql"></key>
+				<key name="TotalkWhThisMonth_sql"></key>
+			</fields>
+	 	</group>
+		<group key="system_status" label="System Status">
+			<fields>
+				<key name="ChargePointID_ocpp"></key>
+				<key name="OCPPStateConnector1_ocpp" otherconnectors="yes"></key>
+				<key name="Type2StateConnector1_vehicleif" otherconnectors="yes"></key>
+				<key name="SignaledCurrentLimit_vehicleif" otherconnectors="yes"></key>
+				<key name="OcppMeterCurrent_meter" otherconnectors="yes"></key>
+				<key name="Frequency_mon"></key>
+				<key name="BackendConnectionState_tcpip"></key>
+				<key name="ModemNetState_modem"></key>
+				<key name="NetworkOperator_modem"></key>
+				<key name="IMSI_modem"></key>
+				<key name="ICCID_modem"></key>
+				<key name="FreeChargingAndModeCombined_ocpp" otherconnectors="yes"></key>				
+				<key name="ErrorsList_custom" otherconnectors="yes"></key>
+				<key name="RCMBState_rcmb" otherconnectors="yes"></key>
+				<key name="Type2NumberContactorCyclesRO_vehicleif" otherconnectors="yes"></key>
+				<key name="Type2PlugCounterRO_vehicleif" otherconnectors="yes"></key>
+				<key name="SchukoStateConnector1_vehicleif" otherconnectors="yes"></key>
+				<key name="SchukoNumberContactorCyclesRO_vehicleif" otherconnectors="yes"></key>
+				<key name="SchukoPlugCounterRO_vehicleif" otherconnectors="yes"></key>				
+				<key name="InterfaceList_dl" otherconnectors="yes"></key>
+				<key name="EichrechtState_er" otherconnectors="yes"></key>
+			</fields>
+		</group>
+		<group key="geolocation_data" label="Geolocation">
+			<fields>
+				<key name="GeolocationShown_custom"></key>
+			</fields>
+		</group>
+		<group key="eebus_status" label="EEBUS Charging Summary">
+			<fields>
+				<key name="EEBUSTable_eebus"></key>
+			</fields>
+		</group>
+		<group key="emanager_status" label="Energy Manager">
+			<fields>
+				<key name="EnergyManagerTable_energyman"></key>
+				<key name="FirstMeterTable_meter"></key>
+				<key name="SecondMeterTable_meter"></key>
+			</fields>
+		</group>
+		<group key="dlm_status" label="DLM Status">
+			<fields>
+				<key name="DlmStatusConfiguration_dlm"></key>
+				<key name="DlmStatusInternalSlave_dlm"></key>
+				<key name="DlmStatusConnectedSlaves_dlm"></key>
+				<key name="DlmLiveView_dlm"></key>
+			</fields>
+		</group>
+		<group key="p15118_status" label="ISO 15118">
+			<fields>
+				<key name="Table1_15118"></key>
+				<key name="Table2_15118"></key>
+				<key name="Table3_15118"></key>
+				<key name="Table4_15118"></key>
+			</fields>
+		</group>
+		<group key="dlmc_status" label="Hierarchical DLM Status">
+			<fields>
+				<key name="Table1_dlmc"></key>
+				<key name="Table2_dlmc"></key>
+			</fields>
+		</group>
+		<group key="zeroconf_peers" label="Chargers in Network">
+			<fields>
+				<key name="ZeroConfPeers_web"></key>
+			</fields>
+		</group>
+	</groups>
+</section>
+<!-- DO NOT REMOVE: dashboard_section_end_marker -->
+
+<!-- DO NOT REMOVE: settings_section_start_marker -->
+<section name="settings">
+	<groups>
+		<group key="network" label="Network">
+			<sub_groups>
+				<sub_group key="gsm" label="GSM">
+					<fields>
+						<key name="WebUIEnabledGSM_modem"></key>
+						<key name="APN_modem"></key>
+						<key name="APNUsername_modem"></key>
+						<key name="APNPassword_modem"></key>
+						<key name="SIMCardPinNumber_modem"></key>
+						<key name="NetworkOperSelMode_modem"></key>
+						<key name="NetworkType_modem"></key>
+						<!--key name="ScanNetworkOps_modem"></key-->
+						<key name="ReqNetworkOperator_modem"></key>
+						<key name="NetworkOperNameFormat_modem"></key>
+						<key name="WANRouter_tcpip"></key>
+						<key name="GSM_PPP_MTU_modem"></key>
+					</fields>
+				</sub_group>
+				<sub_group key="lan" label="LAN">
+					<fields>
+						<key name="WebUIEnabledLAN_tcpip"></key>
+						<key name="NetworkConfig_mode_tcpip"></key>
+						<key name="NetworkConfigStaticAddress_tcpip"></key>
+						<key name="NetworkConfigStaticNetmask_tcpip"></key>
+						<key name="NetworkConfigStaticGateway_tcpip"></key>
+						<key name="NetworkConfigStaticDNS_tcpip"></key>
+						<key name="NetworkConfigDHCPRetries_tcpip"></key>
+						<key name="NetworkConfigDHCPTimeout_tcpip"></key>
+						<key name="NetworkConfigDHCPDelay_tcpip"></key>
+						<key name="NetworkConfigDHCPHostname_tcpip"></key>
+					</fields>
+				</sub_group>
+				<sub_group key="usb" label="USB">
+					<fields>
+						<key name="USBShowHideConfiguration_dl"></key>
+						<key name="USBAdditionalIP_dl"></key>
+						<key name="USBAdditionalGW_dl"></key>
+						<key name="USBAdditionalDNS_dl"></key>
+					</fields>
+				</sub_group>
+				<sub_group key="wlan" label="WLAN">
+					<fields>
+						<key name="Enabled_wlan"></key>
+						<key name="WLANSSID_wlan"></key>
+						<key name="WLANPassword_wlan"></key>
+						<key name="NetworkConfig_mode_wlan"></key>
+						<key name="NetworkConfigStaticAddress_wlan"></key>
+						<key name="NetworkConfigStaticNetmask_wlan"></key>
+						<key name="NetworkConfigStaticGateway_wlan"></key>
+						<key name="NetworkConfigStaticDNS_wlan"></key>
+						<key name="NetworkConfigDHCPRetries_wlan"></key>
+						<key name="NetworkConfigDHCPTimeout_wlan"></key>
+						<key name="NetworkConfigDHCPDelay_wlan"></key>
+						<key name="NetworkConfigDHCPHostname_wlan"></key>
+					</fields>
+				</sub_group>
+				<sub_group key="wifi_hotspot" label="WiFi Configuration Hotspot">
+					<fields>
+						<key name="Enabled_hotspot"></key>
+						<key name="SSID_hotspot"></key>
+						<key name="Encryption_hotspot"></key>
+						<key name="Password_hotspot"></key>
+						<key name="Subnet_hotspot"></key>
+						<key name="Netmask_hotspot"></key>
+						<key name="DHCPEnabled_hotspot"></key>
+						<!--key name="DHCPGateway_hotspot"></key-->
+						<!--key name="DHCPDNS_hotspot"></key-->
+					</fields>
+				</sub_group>
+				<sub_group key="ntp" label="NTP">
+					<fields>
+						<key name="NTPEnableDisableConfiguration_ntp"></key>
+						<key name="NTPServer1_ntp"></key>
+						<key name="NTPServer2_ntp"></key>
+						<key name="NTPServer3_ntp"></key>
+						<key name="NTPServer4_ntp"></key>
+					</fields>
+				</sub_group>
+			</sub_groups>
+		</group>
+		<group key="backend" label="Backend">
+			<sub_groups>
+				<sub_group key="connection" label="Connection">
+					<fields>
+						<key name="Type_dl"></key>
+					</fields>
+				</sub_group>
+				<sub_group key="ocpp" label="OCPP">
+					<fields>
+						<key name="ChargePointID_ocpp"></key>
+						<key name="TCP_IP_MODE_V2_tcpip"></key>
+						<!-- soap -->
+						<key name="SoapOCPPBackendURL_tcpip"></key>
+						<key name="SSLLocalMode_tcpip"></key>
+						<key name="SoapOCPPChargePointServerPort_tcpip"></key>
+						<key name="BackendWhitelistSOAP_tcpip"></key>
+						<key name="ChargePointPublicAddress_tcpip"></key>
+						<key name="ChargePointPublicAddress_mode_tcpip"></key>
+						<key name="WANRouterPassword_tcpip"></key>
+						<!-- json -->
+						<key name="JsonOCPPBackendURL_tcpip"></key>
+						<key name="WebsocketsProxyURL_tcpip"></key>
+						<key name="WebSocketsKeepAliveInterval_tcpip"></key>
+						<key name="HTTPBasicAuthPassword_tcpip"></key>
+						<!-- heartbeat -->
+						<key name="ForceHeartBeat_ocpp"></key>
+						<!-- notifications -->
+						<key name="InfoStatusNotifications_ocpp"></key>
+						<key name="ErrorStatusNotifications_ocpp"></key>
+						<key name="UsbErrorStatusNotifications_ocpp"></key>
+						<key name="StatusNotificationStrategy_ocpp"></key>
+						<key name="PreparingUntilStateC_ocpp"></key>
+						<key name="AllowLongOcppGetConfKeys_ocpp"></key>
+						<key name="OcppQueueFullAsErrorState_ocpp"></key>
+						<key name="ForceStateCon1AvailBtn_ocpp"></key>
+						<!-- gls -->
+						<!--key name="GLSRouteBackend_ocpp"></key>
+						<key name="GLSOCPPMessagingMode_ocpp"></key-->
+ 					</fields>
+				</sub_group>
+				<sub_group key="other" label="Other">
+					<fields>
+						<key name="ConnectionTimeOut_ocpp"></key>
+						<key name="TransactionMessageAttempts_ocpp"></key>
+						<key name="EichrechtTransactionMessageAttempts_ocpp"></key>
+						<key name="SSLAuthMode_tcpip"></key>
+						<key name="TcpWatchdogTimeout_tcpip"></key>
+						<key name="DisconnectAsError_ocpp"></key>
+					</fields>
+				</sub_group>
+				<sub_group key="meter" label="Meter">
+					<fields>
+						<!-- OCPP Meter -->
+						<key role="manufacturer" name="Config_meter"></key>
+						<key role="manufacturer" name="OcppMeterIPAddress_meter"></key>
+						<key role="manufacturer" name="OcppMeterTCPPortNumber_meter"></key>
+						<key role="manufacturer" name="S0MeterPulsesPerKWh_meter"></key>
+
+						<key name="ResetMeterValues_ocpp"></key>
+						<key name="SignedMeterValues_ocpp"></key>
+						<key name="SignedMeterValuesFormat_ocpp"></key>
+						<key name="HTBSendMeterPublicKey_ocpp"></key>
+						<key name="TariffAndUsageDataTransfer_ocpp"></key>
+
+						<key name="MeterValuesSampledData_meter"></key>
+						<key name="MeterValueSampleInterval_meter"></key>
+						<key name="MeterValuesAlignedData_meter"></key>
+						<key name="ClockAlignedDataInterval_meter"></key>
+						<key name="RetransmitMeterValues_ocpp"></key>
+					</fields>
+				</sub_group>
+				<sub_group key="banner" label="Banner gateway">
+					<fields>
+						<key name="BannerEnabled_banner"></key>
+						<key name="BannerReadAnalog_banner"></key>
+						<key name="BannerPollInterval_banner"></key>
+						<key name="BannerSendInterval_banner"></key>
+						<key name="BannerMaxNodeId_banner"></key>
+					</fields>
+				</sub_group>
+			</sub_groups>
+		</group>
+		<group key="authorization" label="Authorization">
+			<sub_groups>
+				<sub_group key="free_charging" label="Free Charging">
+					<fields>
+						<key name="FreeCharging_vehicleif"></key>
+						<key name="FreeChargingMode_ocpp"></key>
+						<key name="RfidTagFreeCharging_ocpp"></key>
+						<key name="IfInDoubtAllowCharging_ocpp"></key>
+					</fields>
+				</sub_group>
+				<sub_group key="general" label="General">
+					<fields>
+						<key name="VehicleConnectionTimeout_ocpp"></key>
+						<key name="AuthorizeRemoteStarts_ocpp"></key>
+						<key name="StopTransactionMode_ocpp"></key>
+						<key name="LockActuatorIfAuthorized_vehicleif"></key>
+					</fields>
+				</sub_group>
+				<sub_group key="rfid_settings" label="RFID Settings">
+					<fields>
+						<key name="OCPPIDTagLetterCase_ocpp"></key>
+						<key name="RFIDEnable_hmi"></key>
+						<key name="EnforceMasterRFID_custom"></key>
+						<key name="EnforceSecureRFID_custom"></key>
+						<key name="DisplayLanguage_hmi"></key>
+					</fields>
+				</sub_group>
+				<sub_group key="rfid_cache" label="RFID Whitelists">
+					<fields>
+						<key name="FllCfg_fll"></key>
+						<!--key name="FllList_fll"></key-->
+						<!--key name="FLLFillMode_fll"></key-->
+						<key name="UseCache_ocpp"></key>
+						<!--key name="CacheList_cache"></key-->
+						<key name="CacheExpiryOption_cache"></key>
+						<!--key name="CacheFillMode_cache"></key-->
+						<key name="LocalPreAuthorize_ocpp"></key>
+						<key name="LocalAuthorizeOffline_ocpp"></key>
+					</fields>
+				</sub_group>
+				<sub_group key="hlc_15118" label="HLC 15118">
+					<fields>
+						<key name="HlcConfig_15118"></key>
+						<key name="Ocpp16Extension_15118"></key>
+						<key name="HlcLogging_15118"></key>
+						<key name="AutochargeConfig_15118"></key>
+						<key name="MACEVCCIDPrefix_15118"></key>
+					</fields>
+				</sub_group>
+			</sub_groups>
+		</group>
+		<group key="whitelists" label="Whitelists">
+			<sub_groups>
+				<sub_group key="local_list" label="Fixed local list">
+					<fields>
+						<!--key name="FLLFillMode_fll"></key-->
+					</fields>
+				</sub_group>
+				<sub_group key="ocpp_list" label="OCPP list">
+					<fields>
+						<!--key name="CacheFillMode_cache"></key-->
+					</fields>
+				</sub_group>
+			</sub_groups>
+		</group>
+		<group key="loadmanagement" label="Load Management">
+			<sub_groups>
+				<sub_group key="local" label="Local">
+					<fields>
+						<key name="OperatorCurrentLimit_vehicleif"></key>
+						<key name="OperatorCurrentLimit_vehicleif_2"></key>
+						<key name="InputPowerLimit_energyman"></key>
+						<key name="InputPowerLimit_energyman_2"></key>
+						<key name="InputCurrentLimit_energyman"></key>
+						<key name="InputCurrentLimit_energyman_2"></key>
+						<key name="SmartChargingUseDisconnectedLimit_energyman"></key>
+						<key name="SmartChargingUseDisconnectedLimit_energyman_2"></key>
+						<key name="SmartChargingDisconnectedLimit_energyman"></key>
+						<key name="SmartChargingDisconnectedLimit_energyman_2"></key>
+					</fields>
+				</sub_group>
+				<sub_group key="modbus" label="Modbus">
+					<fields>
+						<key name="TCPConfigOnOff_modbus_slave"></key>
+						<key name="TCPPortNumber_modbus_slave"></key>
+						<key name="RegAddrSet_modbus_slave"></key>
+						<key name="AllowStartStop_modbus_slave"></key>
+						<key name="AllowUIDDisclose_modbus_slave"></key>
+					</fields>
+				</sub_group>
+				<sub_group key="sempgateway" label="SMA Sunny Home Manager Interface">
+					<fields>
+						<key name="SempGatewayConfigOnOff_semp_gateway"></key>
+						<key name="SempGatewayChargingMode_semp_gateway"></key>
+						<key name="SempGatewayFallbackCurrent_semp_gateway"></key>
+						<key name="SempGatewayCommunicationTimeout_semp_gateway"></key>
+						<key name="SempGatewayMaxEnergyDemand_semp_gateway"></key>
+						<key name="SempGatewayMinEnergyDemand_semp_gateway"></key>
+						<key name="SempGatewayMaxChargingTime_semp_gateway"></key>
+					</fields>
+				</sub_group>
+				<sub_group key="eebus" label="EEBUS">
+					<fields>
+ 						<key name="EEBUSConfigOnOff_eebus"></key>
+						<key name="EEBUSFallbackCurrent_eebus"></key>
+						<key name="EEBUSCommunicationTimeout_eebus"></key>
+						<!--key name="EEBUSStartPairingButton_eebus"></key-->
+						<key name="EEBUSPairingActionSelector_eebus"></key>
+						<key name="EEBUSPairingStatus_eebus"></key>
+						<key name="EEBUSPairedCemIdentificationForWebUI_eebus"></key>
+						<!--key name="EEBUSClearPairingButton_eebus"></key-->
+					</fields>
+				</sub_group>
+				<sub_group key="dynamic_load_management" label="Dynamic Load Management">
+					<fields>
+						<key name="DlmMode_dlm"></key>
+						<key name="DlmDiscoveryNetworkId_dlm"></key>
+						<key name="DlmMasterIp_dlm"></key>
+						<key name="DlmDiscoveryDisableBroadcast_dlm"></key>
+						<key name="DlmAlgoSampleRate_dlm"></key>
+						<key name="DlmAllowEVWakeup_dlm"></key>
+						<key name="DlmPhaseLimit_dlm"></key>
+						<key name="DlmOperatorLimit_dlm"></key>
+						<key name="DlmInput1CurrOffsetConfig_dlm"></key>
+						<key name="DlmInput1Polarity_dlm"></key>
+						<key name="DlmInput1OffsetPhase_dlm"></key>
+						<key name="DlmInput2CurrOffsetConfig_dlm"></key>
+						<key name="DlmInput2Polarity_dlm"></key>
+						<key name="DlmInput2OffsetPhase_dlm"></key>
+						<key name="DlmInput3CurrOffsetConfig_dlm"></key>
+						<key name="DlmInput3OffsetPhase_dlm"></key>
+
+						<key name="DlmExternalMeterEnabled_dlm"></key>
+						<!-- SECOND Meter -->
+						<key name="ConfigSecond_meter"></key>
+						<key name="SecondMeterIPAddress_meter"></key>
+						<key name="SecondMeterTCPPortNumber_meter"></key>
+						<key name="S0MeterPulsesPerKWhSecond_meter"></key>
+
+						<key name="DlmExternalMeterMainDistLimit_dlm"></key>
+						<key name="DlmExternalLoadHeadroom_dlm"></key>
+						<key name="DlmExternalLoadFallback_dlm"></key>
+						<key name="DlmExternalMeterLocation_dlm"></key>
+						<key name="DlmExternalLoadAvgLen_dlm"></key>
+
+						<key name="DlmCurrImbalanceLimitEnabled_dlm"></key>
+						<key name="DlmCurrImbalanceLimit_dlm"></key>
+						<key name="DlmMinCurrentRating_dlm"></key>
+						<key name="DlmDisconnectedLimit_dlm"></key>
+						<key name="DlmITNetworkEnabled_dlm"></key>
+						<key name="DlmClearPersistentSlavesButton_dlm"></key>
+						<key name="DlmTimeTableEnabled_dlm"></key>
+						<key name="DlmTimeTableTable_dlm"></key>
+					</fields>
+				</sub_group>
+				<sub_group key="hierarchical_dlm" label="Hierarchical Dynamic Load Management">
+					<fields>
+						<key name="DlmCMode_dlmc"></key>
+						<key name="DlmcMqttBrokerAddress_dlmc"></key>
+						<key name="DlmcMqttBrokerPort_dlmc"></key>
+						<key name="DlmcAddress_dlmc"></key>
+						<key name="DlmcMaximumFallbackCurrent_dlmc"></key>
+						<key name="DlmcPublishConstraints_dlmc"></key>
+						<key name="DlmcConstraint1_dlmc"></key>
+						<key name="DlmcConstraint2_dlmc"></key>
+						<key name="DlmcConstraint3_dlmc"></key>
+						<key name="DlmcConstraint4_dlmc"></key>
+						<key name="DlmcConstraint5_dlmc"></key>
+						<key name="DlmcConstraint6_dlmc"></key>
+						<key name="DlmcConstraint7_dlmc"></key>
+						<key name="DlmcConstraint8_dlmc"></key>
+						<key name="DlmcConstraint9_dlmc"></key>
+						<key name="DlmcConstraint10_dlmc"></key>
+						<key name="DlmcConstraint11_dlmc"></key>
+						<key name="DlmcConstraint12_dlmc"></key>
+						<key name="DlmcConstraint13_dlmc"></key>
+						<key name="DlmcConstraint14_dlmc"></key>
+						<key name="DlmcConstraint15_dlmc"></key>
+						<key name="DlmcConstraint16_dlmc"></key>
+						<key name="DlmcConstraint17_dlmc"></key>
+						<key name="DlmcConstraint18_dlmc"></key>
+						<key name="DlmcConstraint19_dlmc"></key>
+						<key name="DlmcConstraint20_dlmc"></key>
+					</fields>
+				</sub_group>
+				<sub_group key="aski_over_ocpp" label="ASKI over OCPP-S">
+					<fields>
+						<key name="MennekesASKI_energyman"></key>
+						<key name="MennekesASKIIP_energyman"></key>
+					</fields>
+				</sub_group>				
+			</sub_groups>
+		</group>
+		<group key="installation" label="Installation">
+			<sub_groups>
+				<sub_group key="generalinstallation" label="General Installation">
+					<fields>
+						<!--key name="PowerSourceVoltage_custom"></key-->
+						<key name="InstallationCurrentLimit_vehicleif"></key>
+						<key name="InstallationCurrentLimit_vehicleif_2"></key>
+						<key name="MainsFrequency_custom"></key>
+						<key name="PhasesNumber_custom"></key>
+						<key name="PhasesNumber_custom_2"></key>
+						<key name="PhaseRotationInternal_energyman"></key>
+						<key name="PhaseRotationITInternal_energyman"></key>
+						<key name="PhaseRotationInternal_energyman_2"></key>
+						<key name="PhaseRotationITInternal_energyman_2"></key>
+
+						<key name="RandomRestartAfterPowerLoss_vehicleif"></key>
+						<key name="RestartAfterPowerLoss_ocpp"></key>
+						<key role="dev" name="SkipPhaseCheck_mon"></key>
+						<key name="LockActuatorPermanently_vehicleif"></key>
+						<key name="LockActuatorPermanently_vehicleif_2"></key>
+						<key name="LedColorScheme_hmi"></key>
+						<key name="LedMkBeep_hmi"></key>
+					</fields>
+				</sub_group>
+				<sub_group key="safety_and_protection" label="Safety &amp; Protection">
+					<fields>
+						<key name="TempDelta_mon"></key>
+						<key name="TempControlReducedPercentage_custom"></key>
+						<key name="RCMBThreshold_rcmb"></key>
+						<!--key name="WeldCheck_rcmb"></key-->
+						<key name="EnableVoltageCheck_mon"></key>
+						<key role="manufacturer" name="VoltageMonitorMax_custom"></key>
+						<key role="manufacturer" name="VoltageUpperDebounceThr_custom"></key>
+						<key role="manufacturer" name="VoltageLowerDebounceThr_custom"></key>
+						<key role="manufacturer" name="VoltageMonitorMin_custom"></key>
+						<key name="TiltSensor_mon"></key>
+					</fields>
+				</sub_group>
+				<sub_group key="hardware_usage_counters" label="Hardware Usage Counters Maintenance">
+					<fields>
+						<key name="Type2NumberContactorCyclesWeb_vehicleif"></key>
+						<key name="Type2NumberContactorCyclesWeb_vehicleif_2"></key>
+						<key name="Type2PlugCounterWeb_vehicleif"></key>
+						<key name="Type2PlugCounterWeb_vehicleif_2"></key>
+						<key name="SchukoNumberContactorCyclesWeb_vehicleif"></key>
+						<key name="SchukoPlugCounterWeb_vehicleif"></key>
+					</fields>
+				</sub_group>
+			</sub_groups>
+		</group>
+		<group key="system" label="System">
+			<sub_groups>
+				<sub_group key="general" label="General">
+					<fields>
+						<key name="EbeeAppTimezone_custom"></key>
+						<key name="LocalTimeToReboot_mon"></key>
+						<key name="DaysToReboot_mon"></key>
+						<key name="RestInterfaceEnable_rest"></key>
+						<!--key name="ResetToDefaultsRFID_custom"></key-->
+						<key name="LogLevel_custom"></key>
+						<key name="LogDownloadButton_custom"></key>
+						<key name="TcpdumpInterface_diag"></key>
+						<key name="TcpdumpStartBtn_diag"></key>
+						<key name="LedBrightness_hmi"></key>
+						<key name="SoundEnable_hmi"></key>
+					</fields>
+				</sub_group>
+				<sub_group key="usb_security" label="USB Security">
+					<fields>
+						<key name="UsbFieldEngineer_usbhotplug"></key>
+						<key name="UsbConfigUpdate_usbhotplug"></key>
+						<key name="UsbFirmwareUpdate_usbhotplug"></key>
+						<key name="UsbScriptExec_usbhotplug"></key>
+						<key name="UsbInstallerPassword_usbhotplug"></key>
+					</fields>
+				</sub_group>
+				<sub_group key="password" label="Password">
+					<fields>
+						<!--key name="OperatorPwdPlain_custom"></key-->
+						<key name="EnforcePwdChange_custom"></key>
+					</fields>
+				</sub_group>
+			        <sub_group key="Geolocation" label="Geolocation">
+					<fields>
+						<key name="UpdateGeolocation_custom"></key>
+					</fields>
+				</sub_group>
+				<sub_group key="system_information" label="System Information">
+					<fields>
+						<key name="SerialNumberROManufacturer_custom"></key>
+						<key name="ChargePointVendor_branding" role="manufacturer"></key>
+						<key name="ChargePointModel_branding" role="manufacturer"></key>
+						<key name="AppVersion_mon"></key>
+						<key name="ControllerVersion_mon"></key>
+						<key name="OSVersion_mon"></key>					
+						<key name="RCMBVersion_mon"></key>
+						<key name="PIC24Version_mon"></key>
+						<key name="AT91LoaderVersion_mon"></key>
+						<key name="UBootVersion_mon"></key>						
+						<key name="EOVersion_mon"></key>
+						<key name="EEBusStackVersion_eebus"></key>
+						<key name="ManufacturerUrl_custom" role="manufacturer+"></key>
+						<key name="EEBusSKIDeviceIdentification_eebus"></key>
+						<key name="AddressForWrittenOffer_custom" role="manufacturer"></key>
+					</fields>
+				</sub_group>
+				<sub_group key="widget_system_maintenance" label="System Maintenance"></sub_group>
+				<sub_group key="widget_firmware_update" label="Firmware Update"></sub_group>
+			</sub_groups>
+		</group>
+		<group  key="devel" label="Development" role="dev">
+			<sub_groups>
+				<sub_group key="firmware" label="Firmware Upgrade">
+					<fields>
+						<key name="AllowFirmwareDowngrade_custom"></key>
+					</fields>
+				</sub_group>
+				<sub_group key="actuator" label="Actuator">
+					<fields>
+						<key name="ActuatorType_vehicleif"></key>
+ 					</fields>
+				</sub_group>
+				<sub_group key="sim" label="Simulation">
+					<fields>
+						<key name="SimCharging_vehicleif"></key>
+ 					</fields>
+				</sub_group>
+				<sub_group key="wan" label="WAN Router">
+					<fields>
+						<key name="WANRouterDeviceName_tcpip"></key>
+ 					</fields>
+				</sub_group>
+				<sub_group key="logs" label="Log">
+					<fields>
+						<key name="DlmDlmLog_dlm"></key>
+						<key name="DlmChargingLog_dlm"></key>
+						<key name="DlmExternalMeterLog_dlm"></key>
+						<key name="DlmAlgoForceState_dlm"></key>
+ 					</fields>
+				</sub_group>
+				<sub_group key="webui" label="Web Interface">
+					<fields>
+						<key name="WebUIStyle_web"></key>
+					</fields>
+				</sub_group>
+				<sub_group key="power_config" label="Power">
+					<fields>
+						<key name="DisableFrequencyCheck_mon"></key>
+						<key name="DisableVoltageCheck_mon"></key>
+ 					</fields>
+				</sub_group>
+				<sub_group key="adc_mod" label="ADC">
+					<fields>
+						<key name="AdcCpCalibrationVal_vehicleif"></key>
+						<key name="AdcCpCal5PerCentVal_vehicleif"></key>
+					</fields>
+				</sub_group>
+				<sub_group key="gls" label="Banking">
+					<fields>
+						<key name="GiroEShortBLZFilter_custom"></key>
+						<key name="GiroEAuthExclusiveGLS_custom"></key>
+					</fields>
+				</sub_group>
+				<sub_group key="rfid" label="RFIDs">
+					<fields>
+						<key name="InvalidRFIDFilter_custom"></key>
+					</fields>
+				</sub_group>
+				<sub_group key="emc" label="EMC">
+					<fields>
+						<key name="EmcTest_custom"></key>
+						<key name="EmcTestTimeLimit_custom"></key>
+					</fields>
+				</sub_group>
+				<sub_group key="dlmc" label="Hierarchical DLM">
+					<fields>
+						<key name="DlmcEnableFeature_dlmc"></key>
+						<key name="DlmcLogMqttMessages_dlmc"></key>
+						<key name="DlmcLogMqttTopic_dlmc"></key>
+					</fields>
+				</sub_group>
+			</sub_groups>
+		</group>
+		<!--group key="documentation" label="Documentation">
+		</group-->
+	</groups>
+</section>
+<!-- DO NOT REMOVE: settings_section_end_marker -->
+
+</xmldocumentroot>

@@ -1,0 +1,39 @@
+<h1>USB stick based firmware update</h1>
+
+
+<h2>What is this function for?</h2>
+<p>The USB stick based firmware feature allows preparing a USB stick
+that contains a firmware update to be applied by the charge controller.
+The stick is placed into a charge controller. The charge controller detects the 
+update file, applies it and reboots the charge controller to make 
+the changes take effect. </p>
+
+<h2>How to use it?</h2>
+
+<h3>Place password file on USB stick</h3>
+<p> To ensure that a person with access to the USB port of the charge controller 
+actually is authorized to make configuration changes, the USB stick needs to 
+contain a file named USB_PASSWORD in the root folder that contains either the 
+operator or manufacturer password. If such a file does not exist, no firmware 
+update is applied.</p>
+
+
+<h3>Place sw_update.deb file onto USB stick</h3>
+<p>In addition the USB stick should a file sw_update.deb in the 
+root folder. This should contain the firmware update that you have received from 
+the manufacturer of the charge controller or charging station.</p> 
+<p> Please only apply firmware updates that have been approved by the 
+manufacturer of the product that you have purchased. Downgrades are not 
+possible and are rejected by the feature.</p>
+
+
+<h3>Insert stick into charge controller to apply</h3>
+<p> When the stick is inserted the controller will signal by blinking with all 
+front LEDs that the SW update is detected and about to be installed. After applying the parameter
+changes the controller will reboot automatically. After the reboot when no 
+further changes can be applied from the stick, the controller will signal that 
+by blinking quickly with the ready LED.</p>
+
+<h2>How to disable it?</h2>
+<p> This parameter allows disabling this feature. If disabled, no sw updates are 
+accepted via USB even if the correct password file is present.</p>

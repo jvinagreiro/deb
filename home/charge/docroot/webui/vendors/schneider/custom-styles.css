@@ -1,0 +1,150 @@
+/*!***/
+/* * style sheet for customization*/
+/* * below are the most common classes to be customized*/
+/* * uncomment them to see the changes and adjust to your needs*/
+/* *!*/
+
+:root {
+	--gray: #fafafa;
+	--darker-gray: #e7e6e8;
+	--dark-button-gray: #6c757d;
+	--dark-button-gray-hover: #5a6268;
+	--black: rgb(94, 105, 113);
+	--green: rgb(61, 205, 88);
+	--darker-green: rgb(29, 102, 43);
+}
+
+/*!***/
+/* * set global font and color, setup background image (e.g. hide)*/
+/* * to replace the background image: replace the image itself (bg.webp)*/
+/* *!*/
+body {
+  background-image: none;
+  background-color: var(--gray);
+}
+
+/* bg.webp only at login, gray background after login*/
+/*div.login-view {
+	background-image: url('bg.webp');
+}*/
+
+.wrapper {
+	background-color: var(--gray);
+}
+
+/* top header with version number, date, time */
+.info-container {
+  color: var(--black);
+}
+
+.logo, .header .navbar-brand img {
+  background-color: white;
+  width: 250px;
+  left:-40px;
+  top:0px;
+  position: absolute;
+}
+
+@media (max-width: 768px) {
+	.header .navbar-brand img
+	{
+		/*position: unset;*/
+	}
+}
+
+
+/*!***/
+/* * menu area*/
+/* *!*/
+.sidebar {
+  background-color: var(--darker-gray);
+}
+
+
+/*!***/
+/* * Menu setup (font, color, border)*/
+/* *!*/
+.menu .nav-link {
+  color: var(--black);
+}
+
+
+/*!***/
+/* * Menu mouseover settings*/
+/* *!*/
+.menu .nav1.link-dashboard > .router-link-exact-active,
+.menu .nav1:not(.link-dashboard) > .router-link-active,
+.menu .nav-link:hover,
+.menu .nav1 .nav-link:hover,
+.menu .nav-link:hover
+{
+	color: var(--black);
+}
+
+/* scroll spy dot */
+.menu .submenu .nav-link.active::before {
+	background-color: var(--black);
+}
+
+.header {
+	border-bottom: 2px solid var(--green);
+	box-shadow: 0px 5px 5px var(--darker-gray);
+	background: white;
+	padding:0px 40px 20px 60px;
+	height: 4.5em;
+}
+
+@media (max-width: 768px) {
+	.header
+	{
+		padding: 0px 40px 30px 60px;
+	}
+	.content {
+		margin-top: 5em;
+	}
+}
+
+button {
+	background: transparent;
+}
+
+.btn-reset, .btn-save, .btn-restart, .btn-primary {
+	color: white;
+  	font-weight: bold;
+  	background-color: var(--green);
+  	border-color: var(--green);
+}
+
+.btn-reset:hover, .btn-save:hover, .btn-restart:hover, .btn-primary:hover {
+	color: white;
+   	background-color: var(--darker-green);
+   	border-color: var(--darker-green);
+}
+
+.btn-reset:disabled, .btn-save:disabled, .btn-restart:disabled, .btn-primary:disabled {
+	color: var(--dark-button-gray);
+	border-color: var(--dark-button-gray);
+	background-color: transparent;
+}
+
+.btn-password-toggle {
+	border-color: var(--dark-button-gray);
+	background-color: var(--dark-button-gray);
+}
+.btn-password-toggle:hover {
+	border-color: var(--dark-button-gray-hover);
+	background-color: var(--dark-button-gray-hover);
+}
+
+/* inline buttons (settings) should be a bit smaller */
+.content-row .btn {
+	/*padding: 2px;*/
+	margin: 0px 5px;
+}
+
+
+/* hide dashboard_image.webp */
+.dashboard-image {
+	display: none;
+}
+

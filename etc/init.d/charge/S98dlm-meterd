@@ -1,0 +1,44 @@
+#!/bin/sh
+#
+# Starts and stops the DLM meter bridge if required
+
+PIDFILE=/var/run/dlm_meterd.pid
+
+start_dlm_meter_bridge()
+{
+    if grep -qi 'Enabled (with local MQTT broker)' /home/charge/persistency/DlmCMode_dlmc 2> /dev/null
+    then
+        echo -n "Starting DLM meter bridge: "
+        start-stop-daemon -S -q -m -b -p $PIDFILE \
+            --exec /home/charge/dlm-meterd -- \
+            -f /etc/dlm-meterd.conf
+            [ "$?" = "0" ] && echo "done" || echo "failed"
+    fi
+}
+
+stop_dlm_meter_bridge()
+{
+    [ -e "$PIDFILE" ] || return
+
+    echo -n "Stopping DLM meter bridge: "
+    start-stop-daemon -K -q -p $PIDFILE
+    rm -f $PIDFILE
+    [ "$?" = "0" ] && echo "done" || echo "failed"
+}
+
+case "$1" in
+    start)
+        start_dlm_meter_bridge
+        ;;
+    stop)
+        stop_dlm_meter_bridge
+        ;;
+    restart|reload)
+        "$0" stop
+        "$0" start
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+        ;;
+esac

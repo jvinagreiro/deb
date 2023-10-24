@@ -1,0 +1,44 @@
+<h1>Freecharging</h1>
+
+
+<h2>Explanation of the different modes:</h2>
+
+
+<h3>Mode: "No OCPP"</h3>
+
+
+<p>No OCPP messages are sent to backend. No authorization is needed, once the car is connected it will be allowed to charge. In case of Chago Station, any rfid must be presented to open the door. 
+Remote stop messages are rejected since there is no transaction id involved.</p>
+
+
+<h3>Mode: "With OCPP status notif without auth"</h3>
+
+
+<p>No authorization is required. The charging starts whenever the car is connected. Only OCPP status notification messages are sent, in particular to indicate when the chargepoint and connector is occupied (charging) or available. In case of Chago Station, any rfid must be presented to open the door.
+No start nor stop transaction messages are sent. 
+Remote stop messages are rejected since there is no transaction id involved.</p>
+
+
+<h3>Mode: "With OCPP status notif with auth"</h3>
+
+
+<p>For authorization any RFID must be presented (and to open the door in Chago Station). Only OCPP status notifications are sent, in particular those indicating the connector and charge point are occupied (charging) or available. No start nor stop transaction messages are sent. Remote stop messages are rejected since there is no transaction id involved.</p>
+
+
+<h3>Mode: "With OCPP Full fixed Rfid with auth"</h3>
+
+
+<p>For authorization any RFID must be presented (and to open the door in Chago Station). OCPP status notifications, start and stop transaction messages are sent. The idtag used in the start and stop transaction messages is the idtag configured in the parameter "Rfid Tag for Free Charging with OCPP Full, fixed rfid modes" in the operator page. Only the rfid tag that started the transaction can stop it, but any rfid tag can open the door. Remote stop messages are accepted and the transaction is stopped (if correct transaction id is used)</p>
+
+
+<h3>Mode: "With OCPP Full fixed Rfid without auth"</h3>
+
+
+<p>No authorization is required (but rfid tag must be presented to open the door in Chago Station). The charging starts whenever the car is connected (state B/C/D). OCPP status notifications, start and stop transaction messages are sent. The idtag used in the start and stop transaction messages is the idtag configured in the parameter "Rfid Tag for Free Charging with OCPP Full, fixed rfid modes" in the operator page. The transaction stops when car goes to state A or when cable is unplugged. Remote stop messages are accepted and the transaction is stopped (if correct transaction id is used)</p>
+
+
+<h3>Mode: "With OCPP Full any Rfid"</h3>
+
+
+<p>Authorization is required. For authorization any RFID must be presented (and to open the door in Chago Station). OCPP status notifications, start and stop transaction messages are sent. The idtag used in the start and stop transaction messages is the idtag that is used for authorization. Only the rfid tag that started the transaction can stop it, but any rfid tag can open the door. Remote stop messages are accepted and the transaction is stopped (if correct transaction id is used)</p>
+

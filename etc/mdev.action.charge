@@ -1,0 +1,134 @@
+#!/bin/sh
+
+PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin
+
+. /lib/ebee_funcs
+
+do_add()
+{
+    case $MDEV in
+        eth0)
+            killall -s SIGHUP /usr/sbin/recover_eth0.sh 2>/dev/null
+
+            if grep -q '^\(\(NEB\)\|\(CC613\)\)' /dev/ebee_variant
+            then
+                mac=$(/usr/sbin/get_mac.sh eth0)
+                logger "mdev.action.charge: using MAC $mac for eth0"
+
+                is_up=$(ip link show dev eth0 up)
+                if [ -n "$is_up" ]
+                then
+                    ip link set dev eth0 down
+                fi
+
+                if ! ip link set dev eth0 address $mac
+                then
+                    logger "mdev.action.charge: failed to set MAC"
+                fi
+
+                if [ -n "$is_up" ]
+                then
+                    ip link set dev eth0 up
+                fi
+            fi
+
+            /usr/sbin/ifplugd.sh restart
+            ;;
+
+        # If a new usb network interface appears check if the CDC ethernet
+        # connection from the master. In this case we need the interface to
+        # be named usb2 and bring it up. But don't interfere while the
+        # S40network init script is running (and give up after 3 seconds)!
+
+        usb*)
+            cnt=0
+            while ps | grep -v grep | grep 'S40network'
+            do
+                usleep 100000
+                cnt=$((cnt+1))
+                if [ $cnt -gt 30 ]
+                then
+                    break
+                fi
+            done
+            if grep -q '^32:eb:ee:' "/sys/class/net/$MDEV/address" 2>/dev/null
+            then
+                if ip link set $MDEV name usb2
+                then
+                    ifup usb2
+                    logger "mdev: renamed $MDEV to usb2 and activated it"
+                elif [ "$MDEV" != "usb2" ]
+                then
+                    logger "mdev: failed to rename $MDEV to usb2"
+                fi
+            fi
+            ;;
+
+        # For U-Blox WIFI: it comes up as mlan0, but we want all WIFI devices
+        # to appear as the wlan0 interface
+
+        mlan0)
+            ip link set mlan0 name wlan0
+            iw dev wlan0 interface add ap0 type __ap
+            ;;
+
+        # For U-Blox WIFI: its access point interfaces comes up as uap0
+        # but we want access points to be named ap0
+
+        uap0)
+            ip link set uap0 name ap0
+            ;;
+    esac
+}
+
+do_remove()
+{
+    case $MDEV in
+        eth0)
+            /usr/sbin/ifplugd.sh stop
+            /usr/sbin/recover_eth0.sh &
+            ;;
+        usb2)
+            ifdown usb2
+            ;;
+        wlan0)
+            # Ebee app starts wpa_supplicant and udhcpc for wlan0 but doesn't
+            # stop them. Make sure they're killed when the interface comes down.
+            # Note: wpa_supplicant seems to block most of the usual signals,
+            # so we use SIGUSR1 which seems to do the job of killing it.
+
+            kill $(cat /var/run/udhcpc.wlan.pid)
+            rm -f /var/run/udhcpc.wlan.pid
+            kill -USR1 $(cat /var/run/wpa_supplicant_wlan.pid)
+            rm -f /var/run/wpa_supplicant_wlan.pid
+            ;;
+        ap0)
+            # Ebee app starts wpa_supplicant for ap0 but doesn't stop it.
+            # Make sure it's killed when the interface comes down.
+
+            kill -USR1 $(cat /var/run/wpa_supplicant_ap.pid)
+            rm -f /var/run/wpa_supplicant_ap.pid
+            ;;
+    esac
+}
+
+
+logger "mdev: $ACTION event for $MDEV and subsystem $SUBSYSTEM"
+if [ "$SUBSYSTEM" != "net" ]; then
+    exit 0
+fi
+
+case $ACTION in
+    add)
+        do_add
+        ;;
+    remove)
+        do_remove
+        ;;
+esac
+
+
+# Local variables:
+# tab-width: 4
+# indent-tabs-mode: nil
+# End:

@@ -1,0 +1,51 @@
+#!/bin/sh
+#
+# Starts the 'dnsmasq' DNS server
+
+. /lib/ebee_funcs
+
+
+start_dnsmasq()
+{
+    echo -n "Starting dnsmasq: "
+    start-stop-daemon -S  -x /usr/sbin/dnsmasq -- \
+        --dhcp-sequential-ip -u charge
+    [ "$?" = "0" ] && echo "done" || echo "failed"
+}
+
+
+stop_dnsmasq()
+{
+    echo -n "Stopping dnsmasq: "
+    start-stop-daemon -K -q -x /usr/sbin/dnsmasq
+    [ "$?" = "0" ] && echo "done" || echo "failed"
+}
+
+
+[ -x /usr/sbin/dnsmasq ] || exit 0
+[ -f /etc/dnsmasq.conf ] || exit 0
+
+case "$1" in
+    start)
+        start_dnsmasq
+        ;;
+    stop)
+        stop_dnsmasq
+        ;;
+    restart|reload)
+        "$0" stop
+        "$0" start
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+        ;;
+esac
+
+exit 0
+
+
+# Local variables:
+# tab-width: 4
+# indent-tabs-mode: nil
+# End:

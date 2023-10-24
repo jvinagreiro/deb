@@ -1,0 +1,6 @@
+#!/bin/sh
+case "$1" in
+	renew|bound)
+		IFACE=wlan0 /etc/network/if-up.d/store_gw
+		;;
+esac

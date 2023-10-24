@@ -1,0 +1,120 @@
+:root {
+	--green: #72BB6F;
+    --dark-blue: #141E29;
+    --black: #000;
+    --gray: rgb(44, 54, 67);
+    --light-gray: rgba(95, 102, 120, 0.4);
+}
+
+.header {
+    background: linear-gradient(var(--black),#141e2900);
+}
+
+.menu {
+    background-color: var(--gray);
+}
+
+.close {
+    color: white;
+}
+
+body {
+  background-image: none;
+  background-color: #0A1621;
+  font: normal normal 400 18px/1.5 'Nunito', 'Helvetica Neue', -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  color: white;
+}
+
+.login-view .login-window {
+    background-color: var(--light-gray);
+}
+
+.modal-content {
+    background-color: var(--dark-blue);
+}
+
+input[type=text], input[type=number], input[type=password], select.custom-select.custom-select,
+    input[type=text]:focus, input[type=number]:focus, input[type=password]:focus, select.custom-select.custom-select:focus {
+        color: var(--black);
+}
+
+.dashboard-image {
+	display: none;
+}
+
+.content {
+    background-color: var(--light-gray);
+}
+
+.footer {
+    background-color: var(--dark-blue);
+}
+
+.logo, .header .navbar-brand img {
+  width: 210px;
+  top: 30px;
+  position: relative;
+  display: inline-block;
+}
+
+/* Menu setup */
+.menu .nav-link {
+    color: var(--green);
+}
+
+/* * Menu mouseover settings*/
+/* mobile menu first */
+div.header div#nav-collapse ul.nav.d-block.d-md-none.navbar-nav li.nav-item a.nav-link,
+/*.menu .nav1:not(.link-dashboard) > .router-link-active,*/
+.menu .nav-link:not(.router-link-active):hover,
+.menu .nav1 .nav-link:not(.router-link-active):hover,
+.menu .nav-link:not(.router-link-active):hover,
+.menu .submenu .nav-link:hover
+{
+    font-weight: bold;
+    color: var(--green);
+}
+
+.menu .nav1 .nav-link:hover, .menu .nav-link:hover,
+.nav1:not(.link-dashboard) > .router-link-active
+{
+    color: white;
+}
+
+  /*scroll spy dot*/
+.menu .submenu .nav-link.active::before {
+      background-color: white;
+}
+
+.menu .nav1:not(.link-dashboard) > .router-link-active, .menu .nav1.link-dashboard > .router-link-exact-active {
+    color: white;
+}
+
+a {
+    color: white;
+}
+
+a:hover {
+    color: rgba(255,255,255,0.5)
+}
+
+/** tab styling **/
+.nav-tabs .nav-link.active {
+    color: var(--green);
+    background-color: var(--gray);
+    border-color: transparent;
+}
+.nav-tabs .nav-link:hover {
+    background-color: var(--gray-dark);
+    border-color: transparent;
+}
+
+.navbar-logout span img {
+    fill: white;
+    background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz1odHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyB3aWR0aD0yNCBoZWlnaHQ9MjQgdmlld0JveD0wIDAgMjQgMjQ+PHBhdGggZD1NMCAwaDI0djI0SDB6Lz48cGF0aCBkPU0xMC4wOSAxNS41OUwxMS41IDE3bDUtNS01LTUtMS40MSAxLjQxTDEyLjY3IDExSDN2Mmg5LjY3bC0yLjU4IDIuNTl6TTE5IDNINWMtMS4xMSAwLTIgLjktMiAydjRoMlY1aDE0djE0SDV2LTRIM3Y0YzAgMS4xLjg5IDIgMiAyaDE0YzEuMSAwIDItLjkgMi0yVjVjMC0xLjEtLjktMi0yLTJ6Lz48L3N2Zz4K");
+    /* display: block; */
+	box-sizing: border-box;
+	width: 24px;
+	height: 24px;
+	padding-left: 10px;
+}

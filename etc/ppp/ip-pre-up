@@ -1,0 +1,2 @@
+#!/bin/sh
+/sbin/route del default

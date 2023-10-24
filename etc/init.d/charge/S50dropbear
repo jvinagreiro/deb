@@ -1,0 +1,119 @@
+#!/bin/sh
+#
+# Starts or stops dropbear sshd.
+#
+# Note: for systems not compliant with Eichtrecht dropbear is
+# still to be run by 'root' to allow root logins on those systems.
+# For this reason there exists a symlink to this script (of the
+# same name) in /etc/init.d. On Eichrecht systems the symlink is
+# deleted and the ssh daemon will run with the permissions of
+#  user 'charge' and only ssh logins by this user are then
+# possible.
+#
+# In order to avoid that on non-Eichrecht systems dropbear
+# gets started twice, first by 'root' and then again by
+# 'charge' we check for the presence of the PID file before
+# proceeding.
+
+
+. /lib/ebee_funcs
+
+DROPBEAR_ARGS="-F -R"
+
+start_dropbear()
+{
+    # Check if dropbear is already running Don't just rely on the existence of
+    # the PID file - it t may be from an improperly killed dropbear instance
+
+       [ -e /var/run/dropbear.pid ] \
+    && ps | grep dropbear | grep -q $(cat /var/run/dropbear.pid) 2> /dev/null \
+    && return
+
+    # Add options for disallowing root logins on Eichrecht systems
+
+    if [ -c /dev/ubi0 -a -e /etc/eichrecht/eichrecht.locked ]
+    then
+        DROPBEAR_ARGS="$DROPBEAR_ARGS -w -g"
+    fi
+
+    # If /etc/dropbear is a symlink to /var/run/dropbear, and
+    #   - the filesystem is RO (i.e. we can not rm the symlink),
+    #     create the directory pointed to by the symlink.
+    #   - the filesystem is RW (i.e. we can rm the symlink),
+    #     replace the symlink with an actual directory
+
+    if [ -L /etc/dropbear \
+         -a "$(readlink /etc/dropbear)" = "/var/run/dropbear" ]
+    then
+        if rm -f /etc/dropbear 2>/dev/null
+        then
+            mkdir -p /etc/dropbear
+        else
+            echo "No persistent location to store SSH host keys. New keys will be"
+            echo "generated on every boot. Are you sure this is what you want to do?"
+            mkdir -p "$(readlink /etc/dropbear)"
+        fi
+    fi
+    
+    # Generating host keys during startup if they don't exist yet.
+    # Having them built on request takes too long.
+
+    if [ ! -f /etc/dropbear/dropbear_rsa_host_key ]; then   
+        umask 077
+        echo "Generating dropbear sshd RSA key"
+        /usr/bin/dropbearkey -t rsa -f /etc/dropbear/dropbear_rsa_host_key
+        umask 022
+    fi
+
+    if [ ! -f /etc/dropbear/dropbear_ecdsa_host_key ]
+    then
+        umask 077
+        echo "Generating dropbear sshd ECDSA key"
+        /usr/bin/dropbearkey -t ecdsa -f /etc/dropbear/dropbear_ecdsa_host_key
+        umask 022
+    fi          
+
+    echo -n "Starting dropbear sshd (as $(whoami)): "
+
+    start-stop-daemon -S -m -q -b --name dropbear \
+        --pidfile /var/run/dropbear.pid --exec /usr/sbin/dropbear \
+        -- $DROPBEAR_ARGS
+    [ $? = 0 ] && echo "done" || echo "failed"
+}
+
+
+stop_dropbear()
+{
+    if [ ! -e /var/run/dropbear.pid ]
+    then
+        return
+    fi
+
+    echo -n "Stopping dropbear sshd: "
+    start-stop-daemon -K -q -p /var/run/dropbear.pid
+    [ $? = 0 ] && echo "done" || echo "failed"
+}
+
+
+case "$1" in
+    start)
+        start_dropbear
+        ;;
+    stop)
+        stop_dropbear
+        ;;
+    restart|reload)
+        "$0" stop
+        "$0" start
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+        ;;
+esac
+
+
+# Local variables:
+# tab-width: 4
+# indent-tabs-mode: nil
+# End:

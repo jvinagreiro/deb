@@ -1,0 +1,66 @@
+#!/bin/sh
+#
+# Start logging
+#
+
+. /lib/ebee_funcs
+
+
+start_logging()
+{
+    echo -n "Starting logging: "
+
+    # Note: the '-n' option passed to syslogd and klogd keeps them from
+    # backgrounding themselves which doesn't work properly when starting
+    # them with start-stop-daemon!
+
+    start-stop-daemon -S -m -q -b --name syslogd \
+        --pidfile /var/run/syslogd.pid --exec /sbin/syslogd -- -n
+    start-stop-daemon -S -m -q -b --name klogd \
+        --pidfile /var/run/klogd.pid --exec /sbin/klogd -- -n
+
+    # As logrotate is run by a script we can't use start-stop-daemon.
+    # Try to start it as much as possible as a daemon, i.e. with double
+    # fork, in a new session and all inputs and outputs closed.
+
+    if [ -z $(pidof logrotate.sh) ]
+    then
+        (setsid /sbin/logrotate.sh <&- >&- 2>&- &) &
+    fi
+
+    echo "done"
+}
+
+
+stop_logging()
+{
+    echo -n "Stopping logging: "
+    killall -KILL logrotate.sh
+    start-stop-daemon -K -q -p /var/run/syslogd.pid
+    start-stop-daemon -K -q -p /var/run/klogd.pid
+    echo "done"
+}
+
+
+case "$1" in
+    start)
+        start_logging
+        ;;
+    stop)
+        stop_logging
+        ;;
+    restart|reload)
+        "$0" stop
+        "$0" start
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+        ;;
+esac
+
+
+# Local variables:
+# tab-width: 4
+# indent-tabs-mode: nil
+# End:

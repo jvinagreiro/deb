@@ -1,0 +1,12 @@
+#!/bin/sh
+# This is a workaround for the lack of support for the "static" keyword
+# in busybox's ifup. Once a patched version is available, delete this
+# file.
+
+set -xe
+
+if [ "$IFACE" = "eth0:1" ]; then
+  ip address del 192.168.124.123/24 dev eth0 label eth0:1
+  ip address add 192.168.124.123/24 scope link dev eth0 label eth0:1
+fi
+

@@ -1,0 +1,40 @@
+#!/bin/sh
+
+. /lib/ebee_funcs
+
+up_eth0()
+{
+	logger "ifplugd.action: bringing up eth0"
+
+	/sbin/ifup eth0 || logger "ifplugd.action: failed to bring up eth0"
+
+	if grep -q '^NEB' /dev/ebee_variant; then
+		/sbin/ethtool -s eth0 speed 10 duplex half autoneg off
+	fi
+
+	/sbin/ifup eth0:1 || logger "ifplugd.action: failed to bring up eth0:1"
+}
+
+down_eth0()
+{
+	logger "ifplugd.action: shutting down eth0"
+
+	/sbin/ifdown eth0:1 || logger "ifplugd.action: failed to shut down eth0:1"
+	kill $(cat /var/run/udhcpc.eth0.pid) || logger "ifplugd.action: failed to kill udhcpc"
+	/sbin/ifdown eth0   || logger "ifplugd.action: failed to shut down eth0"
+}
+
+case "$1" in
+	eth0)
+		case "$2" in
+			up)
+				up_eth0
+				;;
+			down)
+				down_eth0
+				;;
+		esac
+ 		;;
+esac
+
+exit 0
